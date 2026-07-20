@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090d18">
+  <title>Batty Mac Status</title>
+  <link rel="stylesheet" href="status.css">
+</head>
+<body>
+<main>
+  <header><span class="kicker">Public, read-only status</span><h1>Batty Mac</h1><p id="description">Palworld dedicated server</p></header>
+  <div id="stale" class="warning" hidden>Live data is delayed. The server may still be available.</div>
+  <section class="card hero"><div><span id="state" class="status">Loading…</span><h2 id="server-name">Batty Mac</h2><p id="version">Checking status</p></div><div class="players"><strong id="players">—</strong><span id="players-max">players</span></div></section>
+  <section class="grid"><article class="card"><span>Server FPS</span><strong id="fps">—</strong></article><article class="card"><span>World day</span><strong id="day">—</strong></article><article class="card"><span>Base camps</span><strong id="bases">—</strong></article><article class="card"><span>Uptime</span><strong id="uptime">—</strong></article></section>
+  <section class="card"><h2>Gameplay settings</h2><dl id="settings"></dl></section>
+  <footer><strong>Last updated:</strong> <time id="updated">Waiting for first snapshot</time><br><small>This page refreshes its data about every five minutes. No player identities or administrative controls are published.</small></footer>
+</main>
+<script src="status.js"></script>
+</body>
+</html>
