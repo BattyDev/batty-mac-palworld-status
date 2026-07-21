@@ -119,6 +119,68 @@
   font-size: 1.5rem;
 }
 
+.signal-notice {
+  position: relative;
+  z-index: 5;
+  width: fit-content;
+  margin: -12px 0 14px auto;
+}
+
+.signal-notice[hidden] {
+  display: none;
+}
+
+.signal-notice summary {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  margin-left: auto;
+  border: 1px solid #ffd76599;
+  border-radius: 50%;
+  background: #5a431fe8;
+  color: #fff1bd;
+  box-shadow: 0 8px 22px #02061566;
+  cursor: pointer;
+  font-size: 1.05rem;
+  font-weight: 900;
+  list-style: none;
+}
+
+.signal-notice summary::-webkit-details-marker {
+  display: none;
+}
+
+.signal-notice summary:hover,
+.signal-notice summary:focus-visible {
+  background: #725522;
+  outline: 2px solid #ffd76588;
+  outline-offset: 2px;
+}
+
+.signal-notice > div {
+  position: absolute;
+  top: 42px;
+  right: 0;
+  width: min(320px, calc(100vw - 44px));
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px;
+  border: 1px solid #ffd76566;
+  border-radius: 15px;
+  background: #4b391fef;
+  color: #fff1bd;
+  box-shadow: 0 16px 34px #02061599;
+  backdrop-filter: blur(12px);
+}
+
+.signal-notice > div span {
+  color: #fff7d8;
+  font-size: .84rem;
+  line-height: 1.45;
+}
+
 @media (max-width: 720px) {
   .hero {
     min-height: 330px;
