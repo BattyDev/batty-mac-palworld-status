@@ -36,6 +36,18 @@ async function refresh() {
     } else {
       const item = document.createElement("li"); item.textContent = "Nobody online"; playerList.append(item);
     }
+    const recentList = document.getElementById("recent-list"); recentList.replaceChildren();
+    const recent = Array.isArray(data.recent_players) ? data.recent_players : [];
+    if (recent.length) {
+      for (const player of recent) {
+        const item = document.createElement("li");
+        const name = document.createElement("strong"); name.textContent = player.name;
+        const seen = document.createElement("span"); seen.textContent = `Last seen ${new Date(player.last_seen).toLocaleString()}`;
+        item.append(name, seen); recentList.append(item);
+      }
+    } else {
+      const item = document.createElement("li"); item.textContent = "No players seen this week"; recentList.append(item);
+    }
     const updated = document.getElementById("updated");
     updated.dateTime = data.updated_at; updated.textContent = new Date(data.updated_at).toLocaleString();
     const settings = document.getElementById("settings"); settings.replaceChildren();
