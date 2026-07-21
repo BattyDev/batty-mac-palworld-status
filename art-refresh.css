@@ -15,14 +15,30 @@
 }
 
 .hero {
-  min-height: 300px;
+  min-height: 340px;
   align-items: flex-end;
-  background-image:
-    linear-gradient(180deg, transparent 0 56%, #07142a 66% 100%),
-    url("official-build-automate.jpg");
-  background-position: center center;
+  isolation: isolate;
+  background-color: #07142a;
+  background-image: url("official-base-camp-hd.jpg");
+  background-position: center 50%;
   background-size: cover;
+  border-color: #38517b;
   padding: 0;
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(
+    180deg,
+    transparent 0 50%,
+    #07142a5e 61%,
+    #07142aed 73%,
+    #07142a 82% 100%
+  );
+  pointer-events: none;
 }
 
 .hero::after {
@@ -31,11 +47,13 @@
 
 .hero-copy {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   padding: 24px;
 }
 
 .players {
+  position: relative;
+  z-index: 2;
   align-self: flex-end;
   margin: 0 24px 24px 0;
   padding: 16px 18px;
@@ -46,32 +64,24 @@
 }
 
 .companion-banner {
-  min-height: 310px;
+  min-height: 0;
   display: flex;
-  align-items: stretch;
-  justify-content: flex-end;
+  flex-direction: column;
   overflow: hidden;
   padding: 0;
   background: linear-gradient(125deg, #132c52, #0a1935);
 }
 
 .companion-banner::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  background: linear-gradient(90deg, transparent 0, transparent 42%, #08162ac9 66%, #08162af7 100%);
-  pointer-events: none;
+  display: none;
 }
 
 .companion-banner > div {
   position: relative;
-  z-index: 2;
-  width: min(38%, 330px);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 30px 28px 30px 18px;
+  z-index: 1;
+  width: 100%;
+  padding: 24px 28px 28px;
+  background: linear-gradient(135deg, #102547, #09182f);
 }
 
 .companion-banner h2 {
@@ -86,12 +96,12 @@
 }
 
 .companion-banner img {
-  position: absolute;
-  inset: 0;
+  position: relative;
+  display: block;
   width: 100%;
-  height: 100%;
+  aspect-ratio: 16 / 7;
   object-fit: cover;
-  object-position: center center;
+  object-position: center 62%;
 }
 
 .section-art {
@@ -111,14 +121,13 @@
 
 @media (max-width: 720px) {
   .hero {
-    min-height: 300px;
-    background-position: 58% center;
+    min-height: 330px;
+    background-position: 52% center;
   }
   .hero-copy { padding: 20px; }
   .players { margin: 0 20px 20px 0; }
   .companion-banner > div {
-    width: min(44%, 290px);
-    padding: 24px 20px 24px 12px;
+    padding: 22px 24px 26px;
   }
   .companion-banner h2 {
     font-size: clamp(1.45rem, 4.7vw, 2rem);
@@ -126,31 +135,45 @@
 }
 
 @media (max-width: 520px) {
-  .companion-banner {
-    min-height: 410px;
-    align-items: flex-end;
-    justify-content: flex-start;
-  }
-  .companion-banner::after {
-    background: linear-gradient(180deg, transparent 15%, #08162a45 45%, #08162af5 76%, #08162a 100%);
-  }
   .companion-banner > div {
     width: 100%;
-    padding: 28px 22px 24px;
+    padding: 22px;
   }
   .companion-banner img {
-    object-position: 42% center;
+    aspect-ratio: 16 / 9;
+    object-position: center center;
   }
 }
 
 @media (max-width: 420px) {
   .hero {
-    min-height: 390px;
-    align-items: flex-end;
+    min-height: 400px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
   }
-  .hero-copy { padding-bottom: 14px; }
+  .hero-copy {
+    min-width: 0;
+    padding: 0 8px 20px 18px;
+  }
+  .hero-copy .status {
+    padding: 6px 8px;
+    font-size: 0.64rem;
+    white-space: nowrap;
+  }
+  .hero-copy h2 {
+    font-size: 1.55rem;
+  }
   .players {
-    margin: 0 20px 20px;
-    align-self: auto;
+    align-self: end;
+    margin: 0 14px 20px 0;
+    padding: 14px;
+    text-align: center;
+  }
+  .players strong {
+    font-size: 2.75rem;
+  }
+  .players span {
+    font-size: 0.78rem;
   }
 }
