@@ -27,6 +27,15 @@ async function refresh() {
     text("version", data.version); text("players", data.players);
     text("players-max", `of ${data.max_players} players`); text("fps", data.fps);
     text("day", data.world_day); text("bases", data.base_camps); text("uptime", duration(data.uptime));
+    const playerList = document.getElementById("player-list"); playerList.replaceChildren();
+    const names = Array.isArray(data.player_names) ? data.player_names : [];
+    if (names.length) {
+      for (const name of names) {
+        const item = document.createElement("li"); item.textContent = name; playerList.append(item);
+      }
+    } else {
+      const item = document.createElement("li"); item.textContent = "Nobody online"; playerList.append(item);
+    }
     const updated = document.getElementById("updated");
     updated.dateTime = data.updated_at; updated.textContent = new Date(data.updated_at).toLocaleString();
     const settings = document.getElementById("settings"); settings.replaceChildren();
