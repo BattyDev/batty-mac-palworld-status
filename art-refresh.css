@@ -19,7 +19,7 @@
   align-items: flex-end;
   background-image:
     linear-gradient(90deg, #091a39f0 0, #0a1b39b8 39%, transparent 72%),
-    url("island-hero-v1.png");
+    url("home-base-hero-v2.png");
   background-position: center;
   background-size: cover;
 }
@@ -54,17 +54,17 @@
 .companion-banner {
   min-height: 230px;
   display: grid;
-  grid-template-columns: minmax(220px, .8fr) minmax(360px, 1.4fr);
+  grid-template-columns: minmax(360px, 1.45fr) minmax(220px, .75fr);
   align-items: center;
   overflow: hidden;
-  padding: 0 0 0 28px;
+  padding: 0 28px 0 0;
   background: linear-gradient(125deg, #132c52, #0a1935);
 }
 
 .companion-banner > div {
   position: relative;
   z-index: 1;
-  padding: 24px 0;
+  padding: 24px 0 24px 24px;
 }
 
 .companion-banner h2 {
@@ -82,9 +82,8 @@
   width: 100%;
   height: 250px;
   object-fit: cover;
-  object-position: 70% center;
-  mix-blend-mode: screen;
-  mask-image: linear-gradient(90deg, transparent 0, #000 24%, #000 100%);
+  object-position: 42% center;
+  mask-image: linear-gradient(90deg, #000 0, #000 76%, transparent 100%);
 }
 
 .section-art {
@@ -106,13 +105,15 @@
   .hero { min-height: 260px; }
   .companion-banner {
     grid-template-columns: 1fr;
-    padding: 24px 20px 0;
+    padding: 0 20px 24px;
   }
-  .companion-banner > div { padding: 0; }
+  .companion-banner > div { padding: 18px 0 0; }
   .companion-banner img {
     height: 210px;
-    margin-top: -15px;
-    mask-image: linear-gradient(180deg, transparent 0, #000 28%, #000 100%);
+    width: calc(100% + 40px);
+    margin-left: -20px;
+    object-position: 35% center;
+    mask-image: linear-gradient(180deg, #000 0, #000 78%, transparent 100%);
   }
 }
 
