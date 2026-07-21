@@ -1,0 +1,122 @@
+.brand-mark {
+  display: grid;
+  place-items: center;
+  border-radius: 24px;
+  background: linear-gradient(145deg, #223f6b, #132442);
+  border: 1px solid #ffffff2b;
+  box-shadow: inset 0 1px 0 #ffffff29, 0 16px 36px #0007;
+  font-size: 2.6rem;
+  transform: rotate(-4deg);
+}
+
+.brand-mark::before,
+.brand-mark span {
+  display: none;
+}
+
+.hero {
+  min-height: 300px;
+  align-items: flex-end;
+  background-image:
+    linear-gradient(90deg, #091a39f0 0, #0a1b39b8 39%, transparent 72%),
+    url("island-hero-v1.png");
+  background-position: center;
+  background-size: cover;
+}
+
+.hero::after {
+  inset: 0;
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, transparent 52%, #07142a88);
+  opacity: 1;
+  pointer-events: none;
+}
+
+.hero-copy {
+  position: relative;
+  z-index: 1;
+  padding-bottom: 10px;
+}
+
+.players {
+  margin: 0 22px 10px 0;
+  padding: 16px 18px;
+  border: 1px solid #ffffff26;
+  border-radius: 20px;
+  background: #09172cc7;
+  backdrop-filter: blur(10px);
+}
+
+.companion-banner {
+  min-height: 230px;
+  display: grid;
+  grid-template-columns: minmax(220px, .8fr) minmax(360px, 1.4fr);
+  align-items: center;
+  overflow: hidden;
+  padding: 0 0 0 28px;
+  background: linear-gradient(125deg, #132c52, #0a1935);
+}
+
+.companion-banner > div {
+  position: relative;
+  z-index: 1;
+  padding: 24px 0;
+}
+
+.companion-banner h2 {
+  margin: 5px 0 10px;
+  font-size: clamp(1.5rem, 4vw, 2.2rem);
+}
+
+.companion-banner p:last-child {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.companion-banner img {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+  object-position: 70% center;
+  mix-blend-mode: screen;
+  mask-image: linear-gradient(90deg, transparent 0, #000 24%, #000 100%);
+}
+
+.section-art {
+  font-size: 1.8rem;
+  filter: drop-shadow(0 0 10px #62e6a766);
+}
+
+.footer-mark {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  margin-bottom: 8px;
+  color: var(--gold);
+  font-size: 1.5rem;
+}
+
+@media (max-width: 720px) {
+  .hero { min-height: 260px; }
+  .companion-banner {
+    grid-template-columns: 1fr;
+    padding: 24px 20px 0;
+  }
+  .companion-banner > div { padding: 0; }
+  .companion-banner img {
+    height: 210px;
+    margin-top: -15px;
+    mask-image: linear-gradient(180deg, transparent 0, #000 28%, #000 100%);
+  }
+}
+
+@media (max-width: 420px) {
+  .hero { min-height: 330px; }
+  .players { margin: 20px 0 0; }
+}
