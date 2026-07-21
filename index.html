@@ -3,21 +3,40 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#090d18">
-  <title>Batty Mac Status</title>
-  <link rel="stylesheet" href="status.css">
+  <meta name="theme-color" content="#101d3d">
+  <title>Batty Mac · Palworld Status</title>
+  <link rel="stylesheet" href="status.css?v=3">
 </head>
 <body>
+<div class="sky-glow sky-glow-one"></div><div class="sky-glow sky-glow-two"></div>
 <main>
-  <header><span class="kicker">Public, read-only status</span><h1>Batty Mac</h1><p id="description">Palworld dedicated server</p></header>
-  <div id="stale" class="warning" hidden>Live data is delayed. The server may still be available.</div>
-  <section class="card hero"><div><span id="state" class="status">Loading…</span><h2 id="server-name">Batty Mac</h2><p id="version">Checking status</p></div><div class="players"><strong id="players">—</strong><span id="players-max">players</span></div></section>
-  <section class="grid"><article class="card"><span>Server FPS</span><strong id="fps">—</strong></article><article class="card"><span>World day</span><strong id="day">—</strong></article><article class="card"><span>Base camps</span><strong id="bases">—</strong></article><article class="card"><span>Uptime</span><strong id="uptime">—</strong></article></section>
-  <section class="card"><h2>Online players</h2><ul id="player-list" class="player-list"><li>Checking…</li></ul></section>
-  <section class="card"><h2>Recently played</h2><p>Players seen during the last seven days.</p><ul id="recent-list" class="recent-list"><li>Checking…</li></ul></section>
-  <section class="card"><h2>Gameplay settings</h2><dl id="settings"></dl></section>
-  <footer><strong>Last updated:</strong> <time id="updated">Waiting for first snapshot</time><br><small>This page refreshes its data about every five minutes. In-game display names and seven-day last-seen times are public; account identifiers and administrative controls are not.</small></footer>
+  <header class="masthead">
+    <div class="brand-mark" aria-hidden="true"><span></span></div>
+    <div><p class="eyebrow">Welcome, Pal Tamer</p><h1>Batty Mac</h1><p id="description" class="tagline">Palworld dedicated server</p></div>
+  </header>
+
+  <div id="stale" class="warning" hidden><strong>Signal lost in the wilds!</strong><span>Live data is delayed. The server may still be available.</span></div>
+
+  <section class="card hero">
+    <div><span id="state" class="status">Loading…</span><h2 id="server-name">Batty Mac</h2><p id="version">Checking server signal</p></div>
+    <div class="players"><strong id="players">—</strong><span id="players-max">players adventuring</span></div>
+  </section>
+
+  <section class="grid stats-grid">
+    <article class="card stat"><span class="stat-icon">⚡</span><div><span>Server FPS</span><strong id="fps">—</strong></div></article>
+    <article class="card stat"><span class="stat-icon">☀️</span><div><span>World day</span><strong id="day">—</strong></div></article>
+    <article class="card stat"><span class="stat-icon">🏕️</span><div><span>Base camps</span><strong id="bases">—</strong></div></article>
+    <article class="card stat"><span class="stat-icon">⏱️</span><div><span>Adventure time</span><strong id="uptime">—</strong></div></article>
+  </section>
+
+  <section class="card section-card online-card"><div class="section-heading"><div><p class="eyebrow">Squad check</p><h2>Online now</h2></div><span class="mini-orb" aria-hidden="true"></span></div><ul id="player-list" class="player-list"><li>Scanning the islands…</li></ul></section>
+
+  <section class="card section-card"><div class="section-heading"><div><p class="eyebrow">Campfire stories</p><h2>Recently played</h2></div><span class="week-chip">Last 7 days</span></div><ul id="recent-list" class="recent-list"><li>Checking the guild log…</li></ul></section>
+
+  <section class="card section-card"><div class="section-heading"><div><p class="eyebrow">World rules</p><h2>Adventure settings</h2></div><span class="sparkle" aria-hidden="true">✦</span></div><dl id="settings" class="settings-list"></dl></section>
+
+  <footer><div class="footer-orb" aria-hidden="true"></div><p><strong>Last sync</strong> · <time id="updated">Waiting for first snapshot</time></p><small>Fresh server intel lands about every five minutes. Display names and seven-day last-seen times are public; private account details stay private.</small></footer>
 </main>
-<script src="status.js"></script>
+<script src="status.js?v=3"></script>
 </body>
 </html>
