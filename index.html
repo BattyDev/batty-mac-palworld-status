@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#101d3d">
   <title>Batty Mac · Palworld Status</title>
-  <link rel="stylesheet" href="status.css?v=4">
+  <link rel="stylesheet" href="status.css?v=5">
   <link rel="stylesheet" href="art-refresh.css?v=4">
 </head>
 <body>
@@ -16,36 +16,93 @@
     <div><p class="eyebrow">Welcome, Pal Tamer</p><h1>Batty Mac</h1><p id="description" class="tagline">Palworld dedicated server</p></div>
   </header>
 
+  <nav class="tab-bar" aria-label="Dashboard views">
+    <button class="tab-button active" type="button" data-tab="quick" aria-selected="true">Quick Look</button>
+    <button class="tab-button" type="button" data-tab="detail" aria-selected="false">Data Overload</button>
+  </nav>
+
   <details id="stale" class="signal-notice" hidden>
     <summary aria-label="Server status information" title="Server status information">!</summary>
     <div><strong>Signal lost in the wilds!</strong><span>Live data is delayed. The server may still be available.</span></div>
   </details>
 
-  <section class="card hero">
-    <div class="hero-copy"><span id="state" class="status">Loading…</span><h2 id="server-name">Batty Mac</h2><p id="version">Checking server signal</p></div>
-    <div class="players"><strong id="players">—</strong><span id="players-max">players adventuring</span></div>
+  <section id="quick-tab" class="tab-panel active" data-panel="quick">
+    <section class="card hero">
+      <div class="hero-copy"><span id="state" class="status">Loading…</span><h2 id="server-name">Batty Mac</h2><p id="version">Checking server signal</p></div>
+      <div class="players"><strong id="players">—</strong><span id="players-max">players adventuring</span></div>
+    </section>
+
+    <section class="grid stats-grid">
+      <article class="card stat"><span class="stat-icon">⚡</span><div><span>Server FPS</span><strong id="fps">—</strong></div></article>
+      <article class="card stat"><span class="stat-icon">☀️</span><div><span>World day</span><strong id="day">—</strong></div></article>
+      <article class="card stat"><span class="stat-icon">🏕️</span><div><span>Base camps</span><strong id="bases">—</strong></div></article>
+      <article class="card stat"><span class="stat-icon">⏱️</span><div><span>Adventure time</span><strong id="uptime">—</strong></div></article>
+    </section>
+
+    <section class="card section-card online-card"><div class="section-heading"><div><p class="eyebrow">Squad check</p><h2>Online now</h2></div><span class="section-art" aria-hidden="true">🌿</span></div><ul id="player-list" class="player-list"><li>Scanning the islands…</li></ul></section>
+    <section class="card section-card"><div class="section-heading"><div><p class="eyebrow">Campfire stories</p><h2>Recently played</h2></div><span class="week-chip">Last 7 days</span></div><ul id="recent-list" class="recent-list"><li>Checking the guild log…</li></ul></section>
+    <section class="card section-card"><div class="section-heading"><div><p class="eyebrow">World rules</p><h2>Adventure settings</h2></div><span class="sparkle" aria-hidden="true">✦</span></div><dl id="settings" class="settings-list"></dl></section>
+
+    <section class="card companion-banner">
+      <img src="official-adventure-hd.jpg" alt="Official Palworld screenshot showing four players setting out together on their Pals">
+      <div><p class="eyebrow">The wilds are calling</p><h2>Pack up. Party up. Head out.</h2><p>See who is ready to explore, catch up with the guild, and choose the next horizon together.</p></div>
+    </section>
   </section>
 
-  <section class="grid stats-grid">
-    <article class="card stat"><span class="stat-icon">⚡</span><div><span>Server FPS</span><strong id="fps">—</strong></div></article>
-    <article class="card stat"><span class="stat-icon">☀️</span><div><span>World day</span><strong id="day">—</strong></div></article>
-    <article class="card stat"><span class="stat-icon">🏕️</span><div><span>Base camps</span><strong id="bases">—</strong></div></article>
-    <article class="card stat"><span class="stat-icon">⏱️</span><div><span>Adventure time</span><strong id="uptime">—</strong></div></article>
+  <section id="detail-tab" class="tab-panel" data-panel="detail" hidden>
+    <section class="card detail-intro">
+      <div><p class="eyebrow">Telemetry firehose</p><h2>Data Overload</h2><p>Gameplay statistics with the doxxing bits removed.</p></div>
+      <div id="capabilities" class="capability-list"></div>
+    </section>
+
+    <section class="grid detail-stat-grid">
+      <article class="card metric"><span>Current FPS</span><strong id="detail-fps">—</strong></article>
+      <article class="card metric"><span>Average FPS</span><strong id="average-fps">—</strong></article>
+      <article class="card metric"><span>Frame time</span><strong id="frame-time">—</strong></article>
+      <article class="card metric"><span>Loaded actors</span><strong id="actor-total">—</strong></article>
+      <article class="card metric"><span>Base workers</span><strong id="worker-total">—</strong></article>
+      <article class="card metric"><span>Snapshot</span><strong id="snapshot-age">—</strong></article>
+    </section>
+
+    <section class="card section-card">
+      <div class="section-heading"><div><p class="eyebrow">Live roster</p><h2>Online player telemetry</h2></div><span class="privacy-chip">IDs, IPs & coordinates removed</span></div>
+      <div class="table-wrap"><table><thead><tr><th>Player</th><th>Level</th><th>Ping</th><th>Guild</th><th>Health</th></tr></thead><tbody id="player-detail-body"></tbody></table></div>
+    </section>
+
+    <section class="card section-card">
+      <div class="section-heading"><div><p class="eyebrow">Guild logistics</p><h2>Bases and workers</h2></div><span class="week-chip">Live + cached</span></div>
+      <div id="guild-grid" class="guild-grid"></div>
+    </section>
+
+    <section class="card section-card">
+      <div class="section-heading"><div><p class="eyebrow">Island census</p><h2>Actors, levels and health</h2></div></div>
+      <div class="table-wrap"><table><thead><tr><th>Category</th><th>Count</th><th>Average level</th><th>Level range</th><th>Average health</th></tr></thead><tbody id="census-body"></tbody></table></div>
+    </section>
+
+    <section class="grid split-grid">
+      <section class="card section-card"><div class="section-heading"><div><p class="eyebrow">Who's out there</p><h2>Top loaded species</h2></div></div><div id="species-lists" class="rank-lists"></div></section>
+      <section class="card section-card"><div class="section-heading"><div><p class="eyebrow">What they're doing</p><h2>Top actor actions</h2></div></div><div id="action-lists" class="rank-lists"></div></section>
+    </section>
+
+    <section class="card section-card">
+      <div class="section-heading"><div><p class="eyebrow">Batty Mac</p><h2>Host health</h2></div></div>
+      <div id="system-grid" class="system-grid"></div>
+    </section>
+
+    <section class="grid split-grid">
+      <section class="card section-card chart-card"><div class="section-heading"><div><p class="eyebrow">Seven-day trail</p><h2>Server FPS</h2></div></div><canvas id="fps-chart" height="190"></canvas><div id="fps-chart-empty" class="empty-note" hidden>History will appear as snapshots accumulate.</div></section>
+      <section class="card section-card chart-card"><div class="section-heading"><div><p class="eyebrow">Seven-day trail</p><h2>Players online</h2></div></div><canvas id="players-chart" height="190"></canvas><div id="players-chart-empty" class="empty-note" hidden>History will appear as snapshots accumulate.</div></section>
+    </section>
+
+    <section class="card section-card">
+      <div class="section-heading"><div><p class="eyebrow">Every safe knob</p><h2>World configuration</h2></div><span id="config-count" class="week-chip">0 settings</span></div>
+      <input id="config-filter" class="filter-input" type="search" placeholder="Filter configuration…" aria-label="Filter configuration">
+      <dl id="configuration" class="settings-list overload-settings"></dl>
+    </section>
   </section>
 
-  <section class="card section-card online-card"><div class="section-heading"><div><p class="eyebrow">Squad check</p><h2>Online now</h2></div><span class="section-art" aria-hidden="true">🌿</span></div><ul id="player-list" class="player-list"><li>Scanning the islands…</li></ul></section>
-
-  <section class="card section-card"><div class="section-heading"><div><p class="eyebrow">Campfire stories</p><h2>Recently played</h2></div><span class="week-chip">Last 7 days</span></div><ul id="recent-list" class="recent-list"><li>Checking the guild log…</li></ul></section>
-
-  <section class="card section-card"><div class="section-heading"><div><p class="eyebrow">World rules</p><h2>Adventure settings</h2></div><span class="sparkle" aria-hidden="true">✦</span></div><dl id="settings" class="settings-list"></dl></section>
-
-  <section class="card companion-banner">
-    <img src="official-adventure-hd.jpg" alt="Official Palworld screenshot showing four players setting out together on their Pals">
-    <div><p class="eyebrow">The wilds are calling</p><h2>Pack up. Party up. Head out.</h2><p>See who is ready to explore, catch up with the guild, and choose the next horizon together.</p></div>
-  </section>
-
-  <footer><div class="footer-mark" aria-hidden="true">✦</div><p><strong>Last sync</strong> · <time id="updated">Waiting for first snapshot</time></p><small>Fresh server intel lands about every five minutes. Display names and seven-day last-seen times are public; private account details stay private.</small></footer>
+  <footer><div class="footer-mark" aria-hidden="true">✦</div><p><strong>Last sync</strong> · <time id="updated">Waiting for first snapshot</time></p><small>Fresh server intel lands about every five minutes. Public data is explicitly allowlisted; account identifiers, addresses and world coordinates stay on Batty Mac.</small></footer>
 </main>
-<script src="status.js?v=4"></script>
+<script src="status.js?v=5"></script>
 </body>
 </html>
