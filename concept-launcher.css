@@ -29,3 +29,47 @@ main{width:min(1540px,calc(100% - 40px));margin:clamp(180px,28vh,330px) auto 0}.
 @media(max-width:1000px){.home-bar{grid-template-columns:1fr auto}.system-icons{grid-row:2;grid-column:1/-1;justify-content:center;margin-top:18px}.system-status{grid-column:2}.connection{display:none}main{margin-top:clamp(120px,22vh,220px)}.two-shelves{grid-template-columns:1fr}.modifier-grid{grid-template-columns:repeat(2,1fr)}.uptime-feature,.base-feature{max-width:none}.feature-tile{flex-basis:280px}}
 @media(max-width:660px){.home-bar{min-height:80px;padding:13px 16px}.account small,.achievement,.menu-mark{display:none}.gamerpic{width:38px;height:38px}.system-icons{position:absolute;top:73px;left:0;right:0;margin:0}.system-icons a{width:39px;height:39px}.system-status{gap:8px}.system-status time{font-size:.68rem}main{width:calc(100% - 18px);margin-top:190px}.dashboard-row{gap:9px}.home-tile{flex-basis:118px;width:118px;height:118px}.selected-tile{flex-basis:165px;width:165px;height:165px}.game-logo span,.game-logo b{font-size:1.45rem}.feature-tile{flex-basis:260px;min-height:165px}.content-shelf{margin-top:55px;padding:19px 14px}.content-shelf>header{align-items:start}.content-shelf>header>span{display:none}.modifier-grid{gap:6px}.concept-highlight{min-height:125px;padding:15px}.concept-highlight strong{font-size:2.25rem}.concept-highlight span{margin-top:19px;font-size:.68rem}.guild-grid{grid-template-columns:1fr}.two-shelves{gap:0;margin-bottom:90px}.two-shelves .content-shelf{margin-top:10px}.controller-bar{gap:12px;padding:9px 14px}.controller-bar small{display:none}}
 @media(max-width:420px){.account b{font-size:.78rem}.system-status time{display:none}.home-tile{flex-basis:108px;width:108px;height:108px}.selected-tile{flex-basis:150px;width:150px;height:150px}.modifier-grid{grid-template-columns:1fr 1fr}.feature-tile{flex-basis:245px}.welcome-feature{flex-basis:280px}.controller-bar span:nth-child(3){display:none}}
+
+/* Interactive Xbox views */
+button{font:inherit}
+.system-icons button{display:grid;place-items:center;width:48px;height:48px;padding:0;border:0;border-radius:50%;background:#10141bd6;color:#fff;box-shadow:0 5px 18px #0005;cursor:pointer;transition:.18s ease}
+.system-icons button:hover,.system-icons button:focus-visible,.system-icons button.is-active{transform:scale(1.1);background:#fff;color:#10151b;outline:3px solid var(--green);outline-offset:3px}
+.system-icons button i{font-size:1.05rem}
+button.home-tile{padding:0;border:0;color:#fff;font-family:inherit;cursor:pointer}
+.view-pane{animation:view-in .24s ease both}.view-pane[hidden]{display:none!important}
+@keyframes view-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.content-screen{min-height:520px;margin-top:0;margin-bottom:120px}
+.screen-intro{max-width:680px;margin:-5px 0 27px;color:#c6d4d9;font-size:.82rem;line-height:1.65}
+.party-shelf,.guild-shelf,.details-screen{max-width:1100px;margin-right:auto;margin-left:auto}
+.controller-bar button{display:flex;align-items:center;gap:7px;padding:0;border:0;background:transparent;color:#fff;font:700 .65rem "Barlow Condensed";letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
+.controller-bar button kbd{background:#ef5e64}
+
+/* Settings artwork — one motif per mechanic */
+.concept-highlight{isolation:isolate;border-bottom-width:4px}
+.concept-highlight:after{display:none}
+.concept-highlight .setting-art{position:absolute;z-index:-1;right:8px;top:4px;color:#fff;font-size:6.7rem;line-height:1;opacity:.18;filter:drop-shadow(0 8px 16px #0005);transform:rotate(-8deg)}
+.concept-highlight strong,.concept-highlight span,.concept-highlight small{position:relative;z-index:1}
+.setting-xp{background:repeating-linear-gradient(112deg,transparent 0 17px,#ffffff0c 18px 20px),linear-gradient(145deg,#d06d08,#713109);border-color:#ffca4d}
+.setting-xp .setting-art{right:16px;top:2px;color:#fff5a6;font-size:7.5rem;transform:rotate(8deg)}
+.setting-capture{background:radial-gradient(circle at 82% 30%,transparent 0 31px,#ffffff1a 32px 34px,transparent 35px 51px,#ffffff12 52px 54px,transparent 55px),linear-gradient(145deg,#ae286d,#5b164b);border-color:#ff78bc}
+.setting-capture .setting-art{color:#ffd0e7;transform:none}
+.setting-resources{background:linear-gradient(#ffffff0a 1px,transparent 1px),linear-gradient(90deg,#ffffff0a 1px,transparent 1px),linear-gradient(145deg,#6f5126,#35250e);background-size:24px 24px,24px 24px,auto;border-color:#e1b75d}
+.setting-resources .setting-art{top:13px;color:#ffdc8a;font-size:6rem;transform:rotate(5deg)}
+.setting-work-speed{background:conic-gradient(from 30deg at 84% 27%,#ffffff17 0 8%,transparent 8% 18%,#ffffff0c 18% 28%,transparent 28% 100%),linear-gradient(145deg,#158999,#075161);border-color:#66edf1}
+.setting-work-speed .setting-art{color:#b9fcff;transform:rotate(14deg)}
+.setting-pals-per-base{background:linear-gradient(155deg,transparent 55%,#ffffff0b 55% 58%,transparent 58%),linear-gradient(145deg,#356b22,#173d13);border-color:#9bf00b}
+.setting-pals-per-base .setting-art{top:13px;color:#d6ffa0;font-size:6rem;transform:none}
+.setting-guild-bases{background:repeating-linear-gradient(0deg,transparent 0 30px,#ffffff0b 31px 32px),linear-gradient(145deg,#315681,#162c4d);border-color:#76bfff}
+.setting-guild-bases .setting-art{top:11px;color:#b8dcff;font-size:6rem;transform:rotate(3deg)}
+.setting-equipment-wear{background:linear-gradient(135deg,transparent 0 44%,#ffffff0d 44% 47%,transparent 47%),linear-gradient(145deg,#7043a8,#34205c);border-color:#c891ff}
+.setting-equipment-wear .setting-art{color:#e8d3ff;transform:none}
+.setting-less-base-damage{background:repeating-linear-gradient(0deg,transparent 0 27px,#ffffff10 28px 30px),repeating-linear-gradient(90deg,transparent 0 52px,#ffffff0b 53px 55px),linear-gradient(145deg,#8c392c,#451c18);border-color:#ff8678}
+.setting-less-base-damage .setting-art{top:12px;color:#ffc5bd;font-size:6rem;transform:rotate(-3deg)}
+.setting-base-radius{background:radial-gradient(circle at 82% 36%,transparent 0 30px,#ffffff18 31px 33px,transparent 34px 53px,#ffffff10 54px 56px,transparent 57px),linear-gradient(145deg,#087c7b,#064449);border-color:#5bfff1}
+.setting-base-radius .setting-art{color:#b9fff9;transform:none}
+
+.detail-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.detail-grid article{position:relative;min-height:170px;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;padding:21px;background:linear-gradient(145deg,#173b48,#0a2631);border-bottom:4px solid var(--aqua)}.detail-grid article:nth-child(2n){background:linear-gradient(145deg,#4f337e,#2a1c50);border-color:#bb8cff}.detail-grid article:nth-child(3n){background:linear-gradient(145deg,#52731b,#29430d);border-color:var(--green)}.detail-grid article>i{position:absolute;right:18px;top:13px;color:#ffffff26;font-size:4.8rem}.detail-grid small{color:#c7d5da;font:800 .6rem "Barlow Condensed";letter-spacing:.13em}.detail-grid strong{margin-top:5px;font:900 2rem "Barlow Condensed";text-transform:uppercase}
+
+@media(max-width:1000px){.system-icons button{width:39px;height:39px}.detail-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:660px){.content-screen{min-height:440px;margin-bottom:90px}.detail-grid{grid-template-columns:1fr 1fr}.detail-grid article{min-height:135px;padding:15px}.detail-grid article>i{font-size:3.8rem}.detail-grid strong{font-size:1.45rem}.concept-highlight .setting-art{font-size:5.4rem}}
+@media(max-width:420px){.system-icons button{width:37px;height:37px}.detail-grid{grid-template-columns:1fr}.detail-grid article{min-height:125px}}

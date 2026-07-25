@@ -11,3 +11,9 @@ Official Palworld page: https://www.pocketpair.jp/en/games-en/palworld-en/
 Official Palworld Steam page: https://store.steampowered.com/app/1623730/Palworld/
 
 Palworld and its artwork are property of Pocketpair, Inc. This fan-run server status page is not affiliated with or endorsed by Pocketpair.
+
+Interface and world-setting symbols use Bootstrap Icons 1.13.1:
+
+- Project: https://icons.getbootstrap.com/
+- License: MIT
+- Delivery: jsDelivr icon-font stylesheet

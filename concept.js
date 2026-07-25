@@ -64,14 +64,33 @@ function achievementFor(guild) {
   return {mark: "△", title: "Camp established", note: `${bases} active base${bases === 1 ? "" : "s"}`};
 }
 
+function iconForHighlight(label) {
+  const icons = {
+    "XP": "bi-lightning-charge-fill",
+    "Capture": "bi-bullseye",
+    "Resources": "bi-box-seam-fill",
+    "Work speed": "bi-gear-wide-connected",
+    "Pals per base": "bi-people-fill",
+    "Guild bases": "bi-houses-fill",
+    "Equipment wear": "bi-shield-check",
+    "Less base damage": "bi-bricks",
+    "Base radius": "bi-bounding-box-circles"
+  };
+  return icons[label] || "bi-stars";
+}
+
+function themeForHighlight(label) {
+  return label.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+}
+
 function renderHighlights(data) {
   const host = $("#concept-highlights");
   if (!host) return;
   host.replaceChildren();
   for (const item of worldHighlights(data)) {
     const article = document.createElement("article");
-    article.className = "concept-highlight";
-    article.innerHTML = `<strong></strong><span></span><small></small>`;
+    article.className = `concept-highlight setting-${themeForHighlight(item.label)}`;
+    article.innerHTML = `<i class="setting-art bi ${iconForHighlight(item.label)}" aria-hidden="true"></i><strong></strong><span></span><small></small>`;
     article.querySelector("strong").textContent = item.value;
     article.querySelector("span").textContent = item.label;
     article.querySelector("small").textContent = item.note;
@@ -186,3 +205,36 @@ function updateClock() {
 
 updateClock();
 setInterval(updateClock, 30000);
+
+function showView(name, updateAddress = true) {
+  const target = $(`[data-view="${name}"]`);
+  if (!target) return;
+
+  for (const pane of all("[data-view]")) {
+    const active = pane === target;
+    pane.hidden = !active;
+    pane.classList.toggle("is-active", active);
+  }
+
+  for (const control of all("[data-view-target]")) {
+    const active = control.dataset.viewTarget === name;
+    control.classList.toggle("is-active", active);
+    if (control.closest(".system-icons")) {
+      if (active) control.setAttribute("aria-current", "page");
+      else control.removeAttribute("aria-current");
+    }
+  }
+
+  if (updateAddress) history.replaceState(null, "", `#${name}`);
+  window.scrollTo({top: 0, behavior: "smooth"});
+}
+
+for (const control of all("[data-view-target]")) {
+  control.addEventListener("click", event => {
+    event.preventDefault();
+    showView(control.dataset.viewTarget);
+  });
+}
+
+const initialView = location.hash.replace("#", "");
+showView($(`[data-view="${initialView}"]`) ? initialView : "home", false);
