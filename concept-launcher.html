@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#07151c">
   <title>Batty Mac · Palworld Server Dashboard</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="concept-launcher.css?v=9">
+  <link rel="stylesheet" href="concept-launcher.css?v=11">
 </head>
 <body>
   <div class="wallpaper" aria-hidden="true"></div>
@@ -194,6 +194,76 @@
     </section>
   </main>
 
+  <div class="pal-inspector" id="pal-inspector" hidden>
+    <button class="pal-inspector-backdrop" type="button" data-pal-close aria-label="Close Pal inspection"></button>
+    <article class="pal-inspector-panel" role="dialog" aria-modal="true" aria-labelledby="pal-inspector-title">
+      <button class="pal-inspector-close" type="button" data-pal-close aria-label="Close Pal inspection"><i class="bi bi-x-lg"></i></button>
+      <header class="pal-inspector-header">
+        <div class="pal-level-badge"><small>LEVEL</small><strong data-pal-level>—</strong></div>
+        <div>
+          <div class="pal-stars" data-pal-stars aria-label="Condensation stars"></div>
+          <h2 id="pal-inspector-title" data-pal-name>Pal</h2>
+          <p><span data-pal-species></span><span data-pal-gender></span><span data-pal-owner></span></p>
+          <div class="pal-elements" data-pal-elements></div>
+        </div>
+      </header>
+
+      <div class="pal-inspector-layout">
+        <section class="pal-inspector-left">
+          <div class="pal-data-section partner-section">
+            <div class="pal-section-heading"><span>Partner Skill</span><b data-pal-partner-name>—</b></div>
+            <div class="partner-ranks" data-pal-partner-ranks></div>
+            <p data-pal-partner-effect>No partner-skill data available.</p>
+          </div>
+          <div class="pal-data-section">
+            <div class="pal-section-heading"><span>Active Skills</span></div>
+            <div class="pal-skill-list" data-pal-active-skills></div>
+          </div>
+          <div class="pal-data-section">
+            <div class="pal-section-heading"><span>Passive Skills</span></div>
+            <div class="pal-passive-list" data-pal-passives></div>
+          </div>
+        </section>
+
+        <section class="pal-inspector-center" aria-label="Pal portrait">
+          <div class="pal-portrait-aura"></div>
+          <img data-pal-portrait alt="">
+          <div class="pal-flag-row" data-pal-flags></div>
+          <button class="maxed-toggle" type="button" data-pal-maxed-toggle><i class="bi bi-stars"></i> Compare maxed potential</button>
+        </section>
+
+        <section class="pal-inspector-right">
+          <div class="pal-data-section trust-section">
+            <div class="pal-section-heading"><span>Trust</span><b data-pal-trust-rank>—</b></div>
+            <div class="trust-track"><i data-pal-trust-bar></i></div>
+            <small data-pal-trust-copy>—</small>
+          </div>
+          <div class="pal-data-section">
+            <div class="pal-section-heading"><span>Stats</span><small data-pal-stats-mode>Current build</small></div>
+            <dl class="pal-stat-grid" data-pal-stats></dl>
+          </div>
+          <div class="pal-data-section">
+            <div class="pal-section-heading"><span>Potential</span><small>0–100</small></div>
+            <dl class="pal-potential-grid" data-pal-potential></dl>
+          </div>
+          <div class="pal-data-section">
+            <div class="pal-section-heading"><span>Soul Enhancements</span><small>0–20</small></div>
+            <dl class="pal-soul-grid" data-pal-souls></dl>
+          </div>
+          <div class="pal-data-section">
+            <div class="pal-section-heading"><span>Work Suitability</span></div>
+            <div class="pal-work-list" data-pal-work></div>
+          </div>
+          <details class="pal-data-section learned-section">
+            <summary>Learned skill library <span data-pal-learned-count>0</span></summary>
+            <div class="pal-learned-list" data-pal-learned></div>
+          </details>
+        </section>
+      </div>
+      <footer class="pal-inspector-controls"><span><kbd>A</kbd> Change partner rank</span><span><kbd>Y</kbd> Maxed comparison</span><span><kbd>B</kbd> Close</span></footer>
+    </article>
+  </div>
+
   <footer class="controller-bar">
     <span><kbd>A</kbd> Select</span>
     <button type="button" data-view-target="home"><kbd>B</kbd> Home</button>
@@ -201,6 +271,6 @@
     <small>UPDATED <b data-field="updated">—</b></small>
   </footer>
 
-  <script src="concept.js?v=9"></script>
+  <script src="concept.js?v=11"></script>
 </body>
 </html>

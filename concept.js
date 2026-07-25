@@ -4,6 +4,10 @@ const conceptLocal = ["127.0.0.1", "localhost"].includes(location.hostname);
 const conceptStatusUrl = conceptLocal
   ? "status.json"
   : `https://raw.githubusercontent.com/${conceptOwner}/${conceptRepository}/data/status.json`;
+let conceptPortraits = {};
+let conceptPortraitLoad = null;
+let activeInspectorPal = null;
+let inspectorMaxed = false;
 
 const $ = selector => document.querySelector(selector);
 const all = selector => [...document.querySelectorAll(selector)];
@@ -102,10 +106,38 @@ function appendParty(host, pals, emptyCopy = "No companion has been observed in 
   const wrapper = document.createElement("div");
   wrapper.className = "party-sightings";
   const label = document.createElement("small");
-  label.textContent = "Party sightings";
+  label.textContent = Array.isArray(pals) && pals.some(pal => pal?.partner_skill) ? "Current party" : "Party sightings";
   const chips = document.createElement("div");
-  chips.className = "pal-chips";
+  chips.className = Array.isArray(pals) && pals.some(pal => pal?.partner_skill) ? "pal-party-grid" : "pal-chips";
   for (const pal of Array.isArray(pals) ? pals.slice(0, 5) : []) {
+    if (pal?.partner_skill) {
+      const card = document.createElement("button");
+      card.type = "button";
+      card.className = "pal-party-card";
+      const portrait = document.createElement("span");
+      portrait.className = "pal-party-portrait";
+      const image = document.createElement("img");
+      image.alt = "";
+      const portraitUrl = portraitForPal(pal);
+      if (portraitUrl) {
+        image.src = portraitUrl;
+        image.addEventListener("error", () => image.remove());
+        portrait.append(image);
+      }
+      const copy = document.createElement("span");
+      copy.className = "pal-party-copy";
+      const title = document.createElement("strong");
+      title.textContent = pal.nickname || pal.species || "Unknown Pal";
+      const species = document.createElement("small");
+      species.textContent = pal.nickname ? pal.species : `Lv ${tidy(pal.level)}`;
+      const meta = document.createElement("span");
+      meta.textContent = `${pal.nickname ? `Lv ${tidy(pal.level)} · ` : ""}${"★".repeat(finite(pal.stars))}${"☆".repeat(Math.max(0, 4 - finite(pal.stars)))}`;
+      copy.append(title, species, meta);
+      card.append(portrait, copy);
+      card.addEventListener("click", () => openPalInspector(pal));
+      chips.append(card);
+      continue;
+    }
     const chip = document.createElement("span");
     const species = pal.species || pal.name || "Unknown Pal";
     const name = pal.nickname ? `${pal.nickname} (${species})` : species;
@@ -119,6 +151,219 @@ function appendParty(host, pals, emptyCopy = "No companion has been observed in 
   }
   wrapper.append(label, chips);
   host.append(wrapper);
+}
+
+function showcaseParty(data, playerName, fallback = []) {
+  const players = data?.pal_showcase?.players;
+  if (!Array.isArray(players)) return fallback;
+  const lookup = String(playerName || "").toLocaleLowerCase();
+  const player = players.find(item => String(item?.name || "").toLocaleLowerCase() === lookup);
+  return Array.isArray(player?.party) && player.party.length ? player.party : fallback;
+}
+
+function portraitForPal(pal) {
+  const key = String(pal?.species || "").toLocaleLowerCase();
+  return conceptPortraits[key] || "";
+}
+
+function setText(selector, value) {
+  const node = $(selector);
+  if (node) node.textContent = value ?? "—";
+}
+
+function fillDefinitionList(host, rows) {
+  host.replaceChildren();
+  for (const [label, value, detail] of rows) {
+    const block = document.createElement("div");
+    const dt = document.createElement("dt");
+    const dd = document.createElement("dd");
+    dt.textContent = label;
+    dd.textContent = value ?? "—";
+    block.append(dt, dd);
+    if (detail) {
+      const small = document.createElement("small");
+      small.textContent = detail;
+      block.append(small);
+    }
+    host.append(block);
+  }
+}
+
+function renderInspectorStats(pal) {
+  const stats = inspectorMaxed ? pal.maxed_projection : pal.stats;
+  setText("[data-pal-stats-mode]", inspectorMaxed ? "Maxed projection" : "Current build");
+  fillDefinitionList($("[data-pal-stats]"), [
+    ["HP", stats?.hp == null ? "—" : Math.round(stats.hp).toLocaleString()],
+    ["Attack", stats?.attack == null ? "—" : Math.round(stats.attack).toLocaleString()],
+    ["Defense", stats?.defense == null ? "—" : Math.round(stats.defense).toLocaleString()],
+    ["Work speed", stats?.work_speed == null ? "—" : Math.round(stats.work_speed).toLocaleString()]
+  ]);
+  const toggle = $("[data-pal-maxed-toggle]");
+  toggle?.classList.toggle("is-active", inspectorMaxed);
+}
+
+function renderSkillList(host, skills, emptyCopy) {
+  host.replaceChildren();
+  for (const skill of Array.isArray(skills) ? skills : []) {
+    const row = document.createElement("article");
+    const copy = document.createElement("span");
+    const name = document.createElement("strong");
+    const detail = document.createElement("small");
+    name.textContent = skill.name || "Unknown skill";
+    detail.textContent = [skill.element, skill.power == null ? null : `${tidy(skill.power)} power`, skill.cooldown == null ? null : `${tidy(skill.cooldown)}s`].filter(Boolean).join(" · ");
+    copy.append(name, detail);
+    const description = document.createElement("p");
+    description.textContent = skill.description || "";
+    row.append(copy, description);
+    host.append(row);
+  }
+  if (!host.children.length) {
+    const empty = document.createElement("p");
+    empty.className = "pal-data-empty";
+    empty.textContent = emptyCopy;
+    host.append(empty);
+  }
+}
+
+function renderPartnerRank(pal, selectedLevel) {
+  const levels = pal?.partner_skill?.levels || [];
+  const selected = levels.find(item => finite(item.level) === finite(selectedLevel)) || levels[0];
+  setText("[data-pal-partner-effect]", selected?.effect || "No partner-skill effect data available.");
+  for (const button of all("[data-partner-rank]")) {
+    button.classList.toggle("is-active", finite(button.dataset.partnerRank) === finite(selected?.level));
+  }
+}
+
+function openPalInspector(pal) {
+  const inspector = $("#pal-inspector");
+  if (!inspector || !pal) return;
+  activeInspectorPal = pal;
+  inspectorMaxed = false;
+  setText("[data-pal-name]", pal.nickname || pal.species || "Unknown Pal");
+  setText("[data-pal-species]", pal.nickname ? pal.species : "Party Pal");
+  setText("[data-pal-level]", tidy(pal.level));
+  setText("[data-pal-gender]", pal.gender ? ` · ${pal.gender}` : "");
+  setText("[data-pal-owner]", pal.owner ? ` · ${pal.owner}'s party` : "");
+  const stars = $("[data-pal-stars]");
+  stars.textContent = `${"★".repeat(finite(pal.stars))}${"☆".repeat(Math.max(0, 4 - finite(pal.stars)))}`;
+  stars.setAttribute("aria-label", `${finite(pal.stars)} of 4 condensation stars`);
+
+  const elements = $("[data-pal-elements]");
+  elements.replaceChildren();
+  for (const element of Array.isArray(pal.elements) ? pal.elements : []) {
+    const chip = document.createElement("span");
+    chip.className = `element-${String(element).toLocaleLowerCase().replace(/[^a-z]/g, "")}`;
+    chip.textContent = element;
+    elements.append(chip);
+  }
+
+  const portrait = $("[data-pal-portrait]");
+  const portraitUrl = portraitForPal(pal);
+  if (portraitUrl) portrait.src = portraitUrl;
+  else portrait.removeAttribute("src");
+  portrait.alt = `${pal.nickname || pal.species} portrait`;
+  portrait.hidden = !portraitUrl;
+  portrait.onerror = () => { portrait.hidden = true; };
+
+  setText("[data-pal-partner-name]", pal.partner_skill?.name || "Partner Skill");
+  const rankHost = $("[data-pal-partner-ranks]");
+  rankHost.replaceChildren();
+  for (const level of pal.partner_skill?.levels || []) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.dataset.partnerRank = level.level;
+    button.textContent = `Lv.${level.level}`;
+    button.addEventListener("click", () => renderPartnerRank(pal, level.level));
+    rankHost.append(button);
+  }
+  renderPartnerRank(pal, pal.partner_skill?.current_level || 1);
+
+  renderSkillList($("[data-pal-active-skills]"), pal.active_skills, "No equipped active skills found.");
+  renderSkillList($("[data-pal-learned]"), pal.learned_skills, "No learned-skill library found.");
+  setText("[data-pal-learned-count]", finite(pal.learned_skills?.length));
+
+  const passiveHost = $("[data-pal-passives]");
+  passiveHost.replaceChildren();
+  for (const passive of Array.isArray(pal.passives) ? pal.passives : []) {
+    const row = document.createElement("article");
+    const heading = document.createElement("strong");
+    const rank = finite(passive.rank);
+    heading.textContent = `${passive.name || "Unknown passive"}${rank ? ` · ${rank > 0 ? "+" : ""}${rank}` : ""}`;
+    const copy = document.createElement("p");
+    copy.textContent = passive.description || "Effect details unavailable.";
+    row.append(heading, copy);
+    passiveHost.append(row);
+  }
+  if (!passiveHost.children.length) {
+    const empty = document.createElement("p");
+    empty.className = "pal-data-empty";
+    empty.textContent = "No passive skills found.";
+    passiveHost.append(empty);
+  }
+
+  const trust = pal.trust || {};
+  setText("[data-pal-trust-rank]", `Rank ${finite(trust.rank)}`);
+  const trustBar = $("[data-pal-trust-bar]");
+  trustBar.style.width = `${Math.max(0, Math.min(100, finite(trust.progress_percent)))}%`;
+  setText("[data-pal-trust-copy]", trust.next_rank_points == null
+    ? `${finite(trust.points).toLocaleString()} points · Maximum trust`
+    : `${finite(trust.points).toLocaleString()} / ${finite(trust.next_rank_points).toLocaleString()} points`);
+
+  fillDefinitionList($("[data-pal-potential]"), [
+    ["HP", finite(pal.potential?.hp)],
+    ["Attack", finite(pal.potential?.attack)],
+    ["Defense", finite(pal.potential?.defense)]
+  ]);
+  fillDefinitionList($("[data-pal-souls]"), [
+    ["HP", finite(pal.souls?.hp)],
+    ["Attack", finite(pal.souls?.attack)],
+    ["Defense", finite(pal.souls?.defense)],
+    ["Work", finite(pal.souls?.work_speed)]
+  ]);
+  renderInspectorStats(pal);
+
+  const workHost = $("[data-pal-work]");
+  workHost.replaceChildren();
+  for (const work of Array.isArray(pal.work_suitability) ? pal.work_suitability : []) {
+    const row = document.createElement("div");
+    const name = document.createElement("strong");
+    const level = document.createElement("b");
+    const detail = document.createElement("small");
+    name.textContent = work.name || work.id || "Work";
+    level.textContent = `Lv.${finite(work.level)}`;
+    const bonus = finite(work.direct_bonus) + finite(work.passive_bonus);
+    detail.textContent = bonus ? `Base ${finite(work.base_level)} + ${bonus} bonus` : `Base level ${finite(work.base_level)}`;
+    row.append(name, level, detail);
+    workHost.append(row);
+  }
+  if (!workHost.children.length) {
+    const empty = document.createElement("p");
+    empty.className = "pal-data-empty";
+    empty.textContent = "No work suitability found.";
+    workHost.append(empty);
+  }
+
+  const flagHost = $("[data-pal-flags]");
+  flagHost.replaceChildren();
+  const flagLabels = {alpha: "Alpha", lucky: "Lucky", awakened: "Awakened", imported: "Imported", favorite: "Favorite"};
+  for (const [key, label] of Object.entries(flagLabels)) {
+    if (!pal.flags?.[key]) continue;
+    const chip = document.createElement("span");
+    chip.textContent = label;
+    flagHost.append(chip);
+  }
+
+  inspector.hidden = false;
+  document.body.classList.add("has-pal-inspector");
+  $(".pal-inspector-close")?.focus();
+}
+
+function closePalInspector() {
+  const inspector = $("#pal-inspector");
+  if (!inspector || inspector.hidden) return;
+  inspector.hidden = true;
+  activeInspectorPal = null;
+  document.body.classList.remove("has-pal-inspector");
 }
 
 function renderOnline(data) {
@@ -159,7 +404,7 @@ function renderOnline(data) {
       stats.append(block);
     }
     body.append(heading, stats);
-    appendParty(body, player.party_sightings);
+    appendParty(body, showcaseParty(data, player.name, player.party_sightings));
     item.append(avatar, body);
     host.append(item);
   }
@@ -200,7 +445,7 @@ function renderRecent(data) {
     time.textContent = player.last_seen ? `Last seen ${seenAgo(player.last_seen)} ago` : "Last seen before tracking began";
     details.append(level, time);
     body.append(heading, details);
-    appendParty(body, player.party_sightings, "No recent companion sighting.");
+    appendParty(body, showcaseParty(data, player.name, player.party_sightings), "No recent companion sighting.");
     item.append(body);
     host.append(item);
   }
@@ -390,7 +635,7 @@ function renderGuilds(data) {
       const level = document.createElement("small");
       level.textContent = member.level == null ? "Level unknown" : `Level ${tidy(member.level)}`;
       memberCard.append(memberHead, level);
-      appendParty(memberCard, member.party_sightings, "No recent companion sighting.");
+      appendParty(memberCard, showcaseParty(data, member.name, member.party_sightings), "No recent companion sighting.");
       memberList.append(memberCard);
     }
     if (!memberList.children.length) {
@@ -580,8 +825,18 @@ function renderBossRadar(data) {
   updateBossCountdowns();
 }
 
+async function loadPortraits() {
+  if (!conceptPortraitLoad) {
+    conceptPortraitLoad = fetch(`pal-portraits.json?v=1`, {cache: "force-cache"})
+      .then(response => response.ok ? response.json() : {})
+      .catch(() => ({}));
+  }
+  conceptPortraits = await conceptPortraitLoad;
+}
+
 async function loadConcept() {
   try {
+    await loadPortraits();
     const response = await fetch(`${conceptStatusUrl}?t=${Date.now()}`, {cache: "no-store"});
     if (!response.ok) throw new Error("Status unavailable");
     const data = await response.json();
@@ -628,6 +883,20 @@ function updateClock() {
 
 updateClock();
 setInterval(updateClock, 30000);
+
+for (const control of all("[data-pal-close]")) {
+  control.addEventListener("click", closePalInspector);
+}
+
+$("[data-pal-maxed-toggle]")?.addEventListener("click", () => {
+  if (!activeInspectorPal) return;
+  inspectorMaxed = !inspectorMaxed;
+  renderInspectorStats(activeInspectorPal);
+});
+
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape" && !$("#pal-inspector")?.hidden) closePalInspector();
+});
 
 function showView(name, updateAddress = true) {
   const target = $(`[data-view="${name}"]`);

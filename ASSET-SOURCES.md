@@ -12,6 +12,13 @@ Official Palworld Steam page: https://store.steampowered.com/app/1623730/Palworl
 
 Palworld and its artwork are property of Pocketpair, Inc. This fan-run server status page is not affiliated with or endorsed by Pocketpair.
 
+Pal portrait icons are extracted game-data assets distributed with
+PalworldSaveTools v2.2.1 and are used only to identify Pals in the private
+community server's read-only showcase:
+
+- PalworldSaveTools: https://github.com/deafdudecomputers/PalworldSaveTools
+- Release used for the data catalog: https://github.com/deafdudecomputers/PalworldSaveTools/releases/tag/v2.2.1
+
 Interface and world-setting symbols use Bootstrap Icons 1.13.1:
 
 - Project: https://icons.getbootstrap.com/
