@@ -28,6 +28,101 @@ const timeAgo = value => {
   if (hours < 24) return `${hours}h ago`;
   return `${Math.floor(hours / 24)}d ago`;
 };
+const tidyNumber = value => {
+  const parsed = number(value);
+  return Number.isInteger(parsed) ? String(parsed) : parsed.toFixed(2).replace(/0+$/, "").replace(/\.$/, "");
+};
+const multiplier = value => `${tidyNumber(value)}×`;
+const percentLess = value => Math.max(0, Math.round((1 - number(value)) * 100));
+
+function buildSettingCallouts(data) {
+  const config = data.configuration || {};
+  const cards = [];
+  const add = (icon, title, detail, tone = "cyan") => cards.push({icon, title, detail, tone});
+
+  if (config.ExpRate != null) add("⚡", `${multiplier(config.ExpRate)} XP!`, "Level up faster and spend more time exploring.", "gold");
+  if (config.PalCaptureRate != null) add("◎", `${multiplier(config.PalCaptureRate)} capture power`, "More successful catches when every sphere matters.", "cyan");
+  if (config.CollectionDropRate != null) add("⛏", `${multiplier(config.CollectionDropRate)} gathering drops`, "Mining, logging and gathering pay off in a big way.", "green");
+  if (config.EnemyDropItemRate != null) add("✦", `${multiplier(config.EnemyDropItemRate)} enemy drops`, "Winning a fight comes with a better haul.", "pink");
+  if (config.WorkSpeedRate != null) add("⚙", `${multiplier(config.WorkSpeedRate)} work speed`, "Base projects move from idea to finished faster.", "gold");
+  if (config.BaseCampMaxNumInGuild != null) add("🏕", `${tidyNumber(config.BaseCampMaxNumInGuild)} bases per guild`, "Plenty of room for outposts, factories and questionable architecture.", "cyan");
+  if (config.BaseCampWorkerMaxNum != null) add("🐾", `${tidyNumber(config.BaseCampWorkerMaxNum)} Pals per base`, "Build a serious workforce at every camp.", "green");
+  if (number(config.EquipmentDurabilityDamageRate) === 0) add("🛠", "Equipment never wears out", "Tools, armor and weapons stay adventure-ready.", "pink");
+  else if (config.EquipmentDurabilityDamageRate != null && number(config.EquipmentDurabilityDamageRate) < 1) add("🛠", `${percentLess(config.EquipmentDurabilityDamageRate)}% less equipment wear`, "Repair less. Explore more.", "pink");
+  if (config.BuildObjectDamageRate != null && number(config.BuildObjectDamageRate) < 1) add("🛡", `${percentLess(config.BuildObjectDamageRate)}% less base damage`, "Hard-earned builds are almost impossible to knock down.", "cyan");
+  if (config.ItemWeightRate != null && number(config.ItemWeightRate) > 0 && number(config.ItemWeightRate) < 1) add("🎒", `Items weigh ${percentLess(config.ItemWeightRate)}% less`, "Bring home the loot without constant inventory shuffling.", "gold");
+
+  for (const feature of Array.isArray(data.features) ? data.features : []) {
+    if (!feature?.title) continue;
+    cards.splice(Math.min(1, cards.length), 0, {
+      icon: feature.icon || "★",
+      title: feature.title,
+      detail: feature.detail || "An active server-side world enhancement.",
+      tone: feature.tone || "pink",
+    });
+  }
+  return cards.slice(0, 10);
+}
+
+function renderSettingCallouts(data) {
+  const grid = byId("setting-callouts"); grid.replaceChildren();
+  const callouts = buildSettingCallouts(data);
+  if (!callouts.length) {
+    const note = document.createElement("p"); note.className = "muted"; note.textContent = "World highlights will appear with the next settings snapshot."; grid.append(note); return;
+  }
+  for (const callout of callouts) {
+    const card = document.createElement("article"); card.className = `callout callout-${callout.tone}`;
+    const icon = document.createElement("span"); icon.className = "callout-icon"; icon.textContent = callout.icon;
+    const copy = document.createElement("div");
+    const title = document.createElement("strong"); title.textContent = callout.title;
+    const detail = document.createElement("p"); detail.textContent = callout.detail;
+    copy.append(title, detail); card.append(icon, copy); grid.append(card);
+  }
+}
+
+function guildBadges(guild) {
+  const badges = [];
+  const bases = number(guild.bases);
+  const workers = number(guild.workers);
+  const levels = guild.worker_levels || {};
+  const species = Array.isArray(guild.top_worker_species) ? guild.top_worker_species.length : 0;
+  const add = (icon, title, detail, rank) => badges.push({icon, title, detail, rank});
+
+  if (bases >= 1) add("🏕", "Camp Established", `Built ${bases === 1 ? "their first base" : `${bases} active bases`}.`, 1);
+  if (bases >= 3) add("🗺", "Island Network", `Connected a network of ${bases} bases.`, 3);
+  if (workers >= 10) add("🐾", "Crew Assembled", `${workers} working Pals keep the guild moving.`, 2);
+  if (workers >= 30) add("⚙", "Industrial Powerhouse", `A workforce ${workers} Pals strong.`, 4);
+  if (number(levels.maximum) >= 50) add("⭐", "Veteran Workforce", `Raised a base worker to level ${levels.maximum}.`, 5);
+  if (species >= 8) add("🌈", "Specialist Team", `At least ${species} worker species represented.`, 3);
+  return badges.sort((a, b) => b.rank - a.rank).slice(0, 4);
+}
+
+function renderAchievements(guilds = []) {
+  const grid = byId("achievement-grid"); grid.replaceChildren();
+  const populated = guilds.map(guild => ({guild, badges: guildBadges(guild)})).filter(item => item.badges.length);
+  if (!populated.length) {
+    const note = document.createElement("p"); note.className = "muted"; note.textContent = "Guild accomplishments will appear when an active base snapshot is available."; grid.append(note); return;
+  }
+  for (const {guild, badges} of populated) {
+    const card = document.createElement("article"); card.className = "achievement-card";
+    const heading = document.createElement("div"); heading.className = "achievement-heading";
+    const crest = document.createElement("span"); crest.className = "guild-crest"; crest.textContent = "✦";
+    const copy = document.createElement("div");
+    const eyebrow = document.createElement("span"); eyebrow.textContent = "Guild record";
+    const title = document.createElement("h3"); title.textContent = guild.name;
+    copy.append(eyebrow, title); heading.append(crest, copy); card.append(heading);
+    const list = document.createElement("ul"); list.className = "badge-list";
+    for (const badge of badges) {
+      const item = document.createElement("li");
+      const icon = document.createElement("span"); icon.className = "badge-icon"; icon.textContent = badge.icon;
+      const words = document.createElement("div");
+      const name = document.createElement("strong"); name.textContent = badge.title;
+      const detail = document.createElement("span"); detail.textContent = badge.detail;
+      words.append(name, detail); item.append(icon, words); list.append(item);
+    }
+    card.append(list); grid.append(card);
+  }
+}
 
 function setTabs() {
   for (const button of document.querySelectorAll(".tab-button")) {
@@ -81,8 +176,8 @@ function renderQuick(data) {
   } else {
     const item = document.createElement("li"); item.textContent = "No players seen this week"; recentList.append(item);
   }
-  const settings = byId("settings"); settings.replaceChildren();
-  for (const [label, value] of Object.entries(data.settings || {})) addDefinition(settings, label, displayValue(value));
+  renderSettingCallouts(data);
+  renderAchievements(data.guilds || []);
 }
 
 function addDefinition(list, label, value) {
@@ -141,7 +236,16 @@ function renderGuilds(guilds = []) {
     if (levels.count) lines.push(`Worker levels ${levels.minimum}–${levels.maximum}, average ${levels.average}`);
     if (guild.worker_health_average != null) lines.push(`Average worker health ${guild.worker_health_average}%`);
     if (onlineCount) lines.push(`Online: ${guild.online_players.join(", ")}`);
-    details.textContent = lines.join(" · ") || "No additional worker telemetry"; card.append(details); grid.append(card);
+    details.textContent = lines.join(" · ") || "No additional worker telemetry"; card.append(details);
+    const badges = guildBadges(guild);
+    if (badges.length) {
+      const badgeRow = document.createElement("div"); badgeRow.className = "guild-badge-row";
+      for (const badge of badges) {
+        const chip = document.createElement("span"); chip.className = "guild-badge"; chip.textContent = `${badge.icon} ${badge.title}`; badgeRow.append(chip);
+      }
+      card.append(badgeRow);
+    }
+    grid.append(card);
   }
 }
 
