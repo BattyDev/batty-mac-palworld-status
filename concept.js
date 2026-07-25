@@ -275,6 +275,135 @@ function renderGuilds(data) {
   if (!host.children.length) host.textContent = "Guild records are waiting for the next active snapshot.";
 }
 
+function bossCountdown(value) {
+  const remaining = Math.max(0, Math.floor((Date.parse(value) - Date.now()) / 1000));
+  if (!remaining) return "Checking…";
+  const hours = Math.floor(remaining / 3600);
+  const minutes = Math.floor((remaining % 3600) / 60);
+  const seconds = remaining % 60;
+  return hours
+    ? `${hours}h ${String(minutes).padStart(2, "0")}m`
+    : `${minutes}:${String(seconds).padStart(2, "0")}`;
+}
+
+function updateBossCountdowns() {
+  for (const node of all("[data-respawn-at]")) {
+    node.textContent = bossCountdown(node.dataset.respawnAt);
+  }
+}
+
+function selectBoss(key) {
+  for (const node of all("[data-boss-key]")) {
+    node.classList.toggle("is-selected", node.dataset.bossKey === key);
+  }
+}
+
+function bossStatusCopy(boss) {
+  if (boss.status === "alive") {
+    return boss.health_percent == null ? "Alive now" : `${tidy(boss.health_percent)}% health`;
+  }
+  if (boss.status === "down") return boss.estimate_source === "measured" ? "Measured respawn" : "Estimated respawn";
+  return boss.last_seen_at ? `Last seen ${seenAgo(boss.last_seen_at)} ago` : "Waiting for first sighting";
+}
+
+function renderBossRadar(data) {
+  const tracker = data.boss_tracker || {};
+  const bosses = Array.isArray(tracker.bosses) ? tracker.bosses : [];
+  const markers = $("#boss-markers");
+  const list = $("#boss-list");
+  const summary = $("#boss-summary");
+  const empty = $("#boss-map-empty");
+  const coverage = $("[data-boss-coverage]");
+  if (!markers || !list || !summary || !empty || !coverage) return;
+
+  markers.replaceChildren();
+  list.replaceChildren();
+  summary.replaceChildren();
+  empty.hidden = bosses.length > 0;
+  const trackerFresh = tracker.updated_at && Date.now() - Date.parse(tracker.updated_at) < 2 * 60 * 1000;
+  for (const node of all("[data-boss-signal]")) node.classList.toggle("is-live", Boolean(trackerFresh));
+  coverage.textContent = bosses.length
+    ? `${bosses.length} alpha${bosses.length === 1 ? "" : "s"} learned · regions load near players`
+    : "Waiting for alpha sightings";
+
+  const counts = tracker.summary || {};
+  const summaryItems = [
+    ["alive", counts.alive ?? bosses.filter(item => item.status === "alive").length, "Alive now"],
+    ["down", counts.down ?? bosses.filter(item => item.status === "down").length, "Respawning"],
+    ["unknown", counts.unknown ?? bosses.filter(item => item.status === "unknown").length, "Not observed"]
+  ];
+  for (const [state, value, label] of summaryItems) {
+    const card = document.createElement("article");
+    card.className = state;
+    const strong = document.createElement("strong");
+    strong.textContent = finite(value);
+    const span = document.createElement("span");
+    span.textContent = label;
+    card.append(strong, span);
+    summary.append(card);
+  }
+  fill("bosses-up", finite(counts.alive));
+
+  for (const boss of bosses) {
+    const key = String(boss.key || boss.name || "boss");
+    const status = ["alive", "down", "unknown"].includes(boss.status) ? boss.status : "unknown";
+    const marker = document.createElement("button");
+    marker.type = "button";
+    marker.className = `boss-marker status-${status}`;
+    marker.dataset.bossKey = key;
+    marker.style.left = `${Math.max(2, Math.min(98, finite(boss.map_x)))}%`;
+    marker.style.top = `${100 - Math.max(2, Math.min(98, finite(boss.map_y)))}%`;
+    marker.title = `${boss.name} · ${bossStatusCopy(boss)}`;
+    marker.setAttribute("aria-label", marker.title);
+    const markerIcon = document.createElement("i");
+    markerIcon.className = status === "alive" ? "bi bi-crosshair" : status === "down" ? "bi bi-hourglass-split" : "bi bi-question-lg";
+    marker.append(markerIcon);
+    marker.addEventListener("click", () => selectBoss(key));
+    markers.append(marker);
+
+    const card = document.createElement("button");
+    card.type = "button";
+    card.className = `boss-card status-${status}`;
+    card.dataset.bossKey = key;
+    const icon = document.createElement("span");
+    icon.className = "boss-state-icon";
+    const iconGlyph = document.createElement("i");
+    iconGlyph.className = status === "alive" ? "bi bi-lightning-charge-fill" : status === "down" ? "bi bi-hourglass-split" : "bi bi-eye-slash-fill";
+    icon.append(iconGlyph);
+    const copy = document.createElement("span");
+    copy.className = "boss-card-copy";
+    const name = document.createElement("strong");
+    name.textContent = boss.name || "Unknown Alpha";
+    const meta = document.createElement("small");
+    meta.textContent = `${boss.level ? `Lv ${boss.level} · ` : ""}${bossStatusCopy(boss)}`;
+    copy.append(name, meta);
+    const time = document.createElement("span");
+    time.className = "boss-card-time";
+    const timeValue = document.createElement("strong");
+    const timeLabel = document.createElement("small");
+    if (status === "down" && boss.estimated_respawn_at) {
+      timeValue.dataset.respawnAt = boss.estimated_respawn_at;
+      timeValue.textContent = bossCountdown(boss.estimated_respawn_at);
+      timeLabel.textContent = "until check";
+    } else {
+      timeValue.textContent = status === "alive" ? "UP" : "—";
+      timeLabel.textContent = status === "alive" ? "loaded now" : "no claim";
+    }
+    time.append(timeValue, timeLabel);
+    card.append(icon, copy, time);
+    card.addEventListener("click", () => selectBoss(key));
+    list.append(card);
+  }
+
+  if (!bosses.length) {
+    const note = document.createElement("p");
+    note.className = "boss-list-empty";
+    note.textContent = "The tracker learns an Alpha the first time somebody visits it. No player positions or IDs are needed.";
+    list.append(note);
+  }
+  updateBossCountdowns();
+}
+
 async function loadConcept() {
   try {
     const response = await fetch(`${conceptStatusUrl}?t=${Date.now()}`, {cache: "no-store"});
@@ -299,6 +428,7 @@ async function loadConcept() {
     renderGuilds(data);
     renderAchievements(data);
     renderOverkill(data, online);
+    renderBossRadar(data);
   } catch (_) {
     fill("status", "Signal lost");
     for (const node of all("[data-status-dot]")) node.classList.remove("is-online");
@@ -306,6 +436,8 @@ async function loadConcept() {
 }
 
 loadConcept();
+setInterval(loadConcept, 60000);
+setInterval(updateBossCountdowns, 1000);
 
 function updateClock() {
   const clock = $("[data-clock]");
