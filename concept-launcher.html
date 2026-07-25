@@ -3,116 +3,117 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#071926">
-  <title>Batty Mac · Palworld Xbox Concept</title>
-  <link rel="stylesheet" href="concept-launcher.css?v=2">
+  <meta name="theme-color" content="#07151c">
+  <title>Batty Mac · Xbox Home Concept</title>
+  <link rel="stylesheet" href="concept-launcher.css?v=3">
 </head>
 <body>
-  <header class="xbox-bar">
-    <a class="xbox-home" href="index.html" aria-label="Return to the current Batty Mac status page">
-      <span class="xbox-mark">X</span>
-      <span>BAT<em>TY</em></span>
+  <div class="wallpaper" aria-hidden="true"></div>
+
+  <header class="home-bar">
+    <a class="account" href="index.html" aria-label="Return to the current Batty Mac status page">
+      <span class="gamerpic">B</span>
+      <span><b>Batty Mac</b><small>Palpagos community server</small></span>
     </a>
-    <nav aria-label="Design concepts">
-      <a aria-current="page" href="concept-launcher.html">PALWORLD</a>
-      <a href="concept-editorial.html">Editorial</a>
-      <a href="concept-utility.html">Utility</a>
+
+    <nav class="system-icons" aria-label="Dashboard shortcuts">
+      <a href="#home" aria-label="Home"><span>▥</span></a>
+      <a href="#party" aria-label="Players"><span>♟</span></a>
+      <a href="#world" aria-label="World settings"><span>▦</span></a>
+      <a href="#guilds" aria-label="Guild records"><span>⌕</span></a>
+      <a href="concept-utility.html" aria-label="Other concepts"><span>⚙</span></a>
     </nav>
-    <div class="profile">
-      <span class="signal" data-status-dot></span>
-      <div><b data-field="status">Connecting</b><small>BAT-01 · XBOX</small></div>
-      <span class="profile-orb">B</span>
+
+    <div class="system-status">
+      <span class="achievement">◆ <b data-field="day">—</b></span>
+      <span class="connection"><i data-status-dot></i><b data-field="status">Connecting</b></span>
+      <time data-clock>--:--</time>
+      <span class="menu-mark">▤</span>
     </div>
   </header>
 
-  <main>
-    <section class="game-hero">
-      <div class="sky-glow"></div>
-      <div class="hero-content">
-        <p class="eyebrow"><span>COMMUNITY SERVER</span><i>·</i> CROSSPLAY ENABLED</p>
-        <div class="palworld-lockup" aria-label="Palworld">
-          <span>PAL</span><strong>WORLD</strong>
+  <main id="home">
+    <section class="dashboard-row primary-row" aria-label="Server shortcuts">
+      <article class="home-tile selected-tile">
+        <img src="official-world-multiplayer.jpg" alt="Players exploring Palworld together">
+        <div class="game-logo"><span>PAL</span><b>WORLD</b></div>
+        <div class="tile-caption">
+          <span><b data-field="server-name">Batty Mac</b><small>Community server</small></span>
+          <i data-status-dot></i>
         </div>
-        <h1 data-field="server-name">Batty Mac</h1>
-        <p class="server-description" data-field="description">Loading the Palpagos Islands…</p>
+      </article>
 
-        <div class="hero-actions">
-          <a class="primary-action" href="#server-live"><kbd>A</kbd><span><small>SERVER STATUS</small>See who's adventuring</span></a>
-          <a class="secondary-action" href="#world-rules"><kbd>Y</kbd><span>World rules</span></a>
-        </div>
-      </div>
+      <a class="home-tile live-tile" href="#party">
+        <span class="tile-icon">♟</span>
+        <strong data-field="players">—</strong>
+        <span>of <b data-field="max-players">—</b> online</span>
+      </a>
 
-      <aside class="live-card" id="server-live">
-        <div class="live-card-top">
-          <span class="online-beacon"><i data-status-dot></i>LIVE WORLD</span>
-          <span class="version">DAY <b data-field="day">—</b></span>
-        </div>
-        <div class="player-count">
-          <strong data-field="players">—</strong>
-          <span><b>/ <i data-field="max-players">—</i></b> PALS ONLINE</span>
-        </div>
-        <div class="world-vitals">
-          <div><small>SERVER FPS</small><b data-field="fps">—</b></div>
-          <div><small>UPTIME</small><b data-field="uptime">—</b></div>
-          <div><small>BASE CAMPS</small><b data-field="bases">—</b></div>
-        </div>
-        <div class="party-title"><span>ACTIVE PARTY</span><small>LIVE</small></div>
-        <ul id="concept-online" class="party-list"></ul>
-      </aside>
+      <a class="home-tile image-tile world-tile" href="#world">
+        <img src="official-build-automate.jpg" alt="">
+        <span><b>World rules</b><small>Your boosted settings</small></span>
+      </a>
 
-      <div class="hero-rail">
-        <span>PALPAGOS ISLANDS</span><i></i>
-        <span>DEDICATED WORLD</span><i></i>
-        <span>HOSTED ON BATTY-MAC</span>
-      </div>
+      <a class="home-tile day-tile" href="#world">
+        <span class="tile-icon">☀</span>
+        <strong>Day <i data-field="day">—</i></strong>
+        <span>World progress</span>
+      </a>
+
+      <a class="home-tile fps-tile" href="#world">
+        <span class="tile-icon">⌁</span>
+        <strong data-field="fps">—</strong>
+        <span>server FPS</span>
+      </a>
+
+      <a class="home-tile image-tile guild-shortcut" href="#guilds">
+        <img src="official-adventure-hd.jpg" alt="">
+        <span><b>Guilds</b><small>See the world records</small></span>
+      </a>
     </section>
 
-    <section class="world-deck" id="world-rules">
-      <div class="deck-heading">
-        <div>
-          <p class="eyebrow">BATTY MAC WORLD SETTINGS</p>
-          <h2>Adventure, without<br>the busywork.</h2>
-        </div>
-        <p>The important rules are translated into plain language, so everyone knows what kind of world they are joining.</p>
-      </div>
+    <section class="dashboard-row feature-row" aria-label="Featured server information">
+      <article class="feature-tile welcome-feature">
+        <img src="official-base-camp-hd.jpg" alt="A large Palworld base full of working Pals">
+        <div><small>WELCOME BACK</small><h1 data-field="server-name">Batty Mac</h1><p data-field="description">Loading the islands…</p></div>
+      </article>
+
+      <article class="feature-tile uptime-feature">
+        <div class="feature-symbol">◷</div>
+        <div><small>WORLD SESSION</small><strong data-field="uptime">—</strong><span>running continuously</span></div>
+      </article>
+
+      <article class="feature-tile base-feature">
+        <img src="official-build-automate.jpg" alt="Pals working around an automated base">
+        <div><small>ACTIVE CAMPS</small><strong data-field="bases">—</strong><span>across the islands</span></div>
+      </article>
+    </section>
+
+    <section class="content-shelf" id="world">
+      <header><div><small>WORLD SETTINGS</small><h2>How this server plays</h2></div><span><kbd>Y</kbd> Live configuration</span></header>
       <div id="concept-highlights" class="modifier-grid"></div>
     </section>
 
-    <section class="island-stories">
-      <article class="story-card base-story">
-        <img src="official-base-camp-hd.jpg" alt="A busy Palworld base filled with working Pals">
-        <div class="story-copy">
-          <small>BASE LIFE</small>
-          <h2>Build bigger.<br>Bring more Pals.</h2>
-          <p>Expanded camps and generous worker limits make every guild headquarters feel alive.</p>
-          <span><kbd>X</kbd> VIEW WORLD RULES</span>
-        </div>
-      </article>
-      <article class="story-card expedition-story">
-        <img src="official-adventure-hd.jpg" alt="Players riding Pals across the Palpagos Islands">
-        <div class="story-copy">
-          <small>THE ADVENTURE</small>
-          <h2>Who left their mark?</h2>
-          <p>Guild accomplishments update from the latest live world snapshot.</p>
-        </div>
-      </article>
-    </section>
+    <section class="two-shelves">
+      <section class="content-shelf party-shelf" id="party">
+        <header><div><small>PEOPLE</small><h2>Playing now</h2></div><span class="live-label"><i data-status-dot></i> LIVE</span></header>
+        <ul id="concept-online" class="party-list"></ul>
+      </section>
 
-    <section class="guild-section">
-      <div class="guild-heading">
-        <p class="eyebrow">WORLD RECORDS</p>
-        <h2>Guilds of Palpagos</h2>
-      </div>
-      <div id="concept-guilds" class="guild-grid"></div>
+      <section class="content-shelf guild-shelf" id="guilds">
+        <header><div><small>PALPAGOS RECORDS</small><h2>Guild activity</h2></div><span><kbd>X</kbd> Latest snapshot</span></header>
+        <div id="concept-guilds" class="guild-grid"></div>
+      </section>
     </section>
   </main>
 
-  <footer class="controller-footer">
+  <footer class="controller-bar">
     <span><kbd>A</kbd> Select</span>
     <span><kbd>B</kbd> Back</span>
-    <span><kbd>Y</kbd> World rules</span>
-    <small>LIVE SNAPSHOT · <b data-field="updated">—</b></small>
+    <span><kbd>Y</kbd> Details</span>
+    <small>UPDATED <b data-field="updated">—</b></small>
   </footer>
-  <script src="concept.js?v=2"></script>
+
+  <script src="concept.js?v=3"></script>
 </body>
 </html>

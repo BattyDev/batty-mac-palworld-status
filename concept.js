@@ -172,3 +172,17 @@ async function loadConcept() {
 }
 
 loadConcept();
+
+function updateClock() {
+  const clock = $("[data-clock]");
+  if (!clock) return;
+  const now = new Date();
+  clock.dateTime = now.toISOString();
+  clock.textContent = now.toLocaleTimeString([], {
+    hour: "numeric",
+    minute: "2-digit"
+  });
+}
+
+updateClock();
+setInterval(updateClock, 30000);
