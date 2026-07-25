@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080b12">
+  <title>Batty Mac · Launcher Concept</title>
+  <link rel="stylesheet" href="concept-launcher.css?v=1">
+</head>
+<body>
+  <header class="launcher-top">
+    <a class="launcher-brand" href="index.html"><span>BM</span><strong>Batty Mac</strong></a>
+    <nav aria-label="Design concepts"><a aria-current="page" href="concept-launcher.html">Launcher</a><a href="concept-editorial.html">Editorial</a><a href="concept-utility.html">Utility</a></nav>
+    <span class="live-pill"><i data-status-dot></i><b data-field="status">Loading</b></span>
+  </header>
+
+  <main>
+    <section class="launcher-hero">
+      <div class="hero-shade"></div>
+      <div class="hero-copy">
+        <p>Palworld dedicated server</p>
+        <h1 data-field="server-name">Batty Mac</h1>
+        <span data-field="description">Loading the islands…</span>
+      </div>
+      <div class="player-orbit">
+        <strong data-field="players">—</strong>
+        <span>of <b data-field="max-players">—</b><br>online now</span>
+      </div>
+      <div class="hero-meta">
+        <span>World <b>Day <i data-field="day">—</i></b></span>
+        <span>Performance <b><i data-field="fps">—</i> FPS</b></span>
+        <span>Session <b data-field="uptime">—</b></span>
+      </div>
+    </section>
+
+    <section class="launcher-section">
+      <div class="section-title"><span>World modifiers</span><h2>Built for momentum</h2></div>
+      <div id="concept-highlights" class="launcher-highlights"></div>
+    </section>
+
+    <section class="launcher-columns">
+      <article class="roster-panel">
+        <div class="section-title"><span>Party</span><h2>Playing now</h2></div>
+        <ul id="concept-online"></ul>
+      </article>
+      <article class="guild-panel">
+        <div class="section-title"><span>Progress</span><h2>Guild records</h2></div>
+        <div id="concept-guilds"></div>
+      </article>
+    </section>
+  </main>
+
+  <footer><span>Concept 01 · Game launcher</span><small>Last snapshot <b data-field="updated">—</b></small></footer>
+  <script src="concept.js?v=1"></script>
+</body>
+</html>
