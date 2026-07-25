@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#101d3d">
   <title>Batty Mac · Palworld Status</title>
-  <link rel="stylesheet" href="status.css?v=6">
-  <link rel="stylesheet" href="art-refresh.css?v=5">
+  <link rel="stylesheet" href="status.css?v=7">
+  <link rel="stylesheet" href="art-refresh.css?v=6">
 </head>
 <body>
 <div class="sky-glow sky-glow-one"></div><div class="sky-glow sky-glow-two"></div>
@@ -32,29 +32,29 @@
       <div class="players"><strong id="players">—</strong><span id="players-max">players adventuring</span></div>
     </section>
 
-    <section class="grid stats-grid">
-      <article class="card stat"><span class="stat-icon">⚡</span><div><span>Server FPS</span><strong id="fps">—</strong></div></article>
-      <article class="card stat"><span class="stat-icon">☀️</span><div><span>World day</span><strong id="day">—</strong></div></article>
-      <article class="card stat"><span class="stat-icon">🏕️</span><div><span>Base camps</span><strong id="bases">—</strong></div></article>
-      <article class="card stat"><span class="stat-icon">⏱️</span><div><span>Adventure time</span><strong id="uptime">—</strong></div></article>
+    <section class="pulse-strip" aria-label="Server pulse">
+      <article class="stat"><span class="stat-icon">⚡</span><div><span>Server FPS</span><strong id="fps">—</strong></div></article>
+      <article class="stat"><span class="stat-icon">☀️</span><div><span>World day</span><strong id="day">—</strong></div></article>
+      <article class="stat"><span class="stat-icon">🏕️</span><div><span>Base camps</span><strong id="bases">—</strong></div></article>
+      <article class="stat"><span class="stat-icon">⏱️</span><div><span>Adventure time</span><strong id="uptime">—</strong></div></article>
     </section>
 
-    <section class="card section-card world-flavor">
+    <section class="world-flavor">
       <div class="section-heading"><div><p class="eyebrow">Our kind of Palworld</p><h2>What makes this world special</h2><p class="section-lede">Less grind. Bigger ambitions. More time for the fun parts.</p></div><span class="sparkle" aria-hidden="true">✦</span></div>
       <div id="setting-callouts" class="callout-grid" aria-live="polite"></div>
     </section>
 
     <section class="quick-split">
-      <section class="card section-card online-card"><div class="section-heading"><div><p class="eyebrow">Squad check</p><h2>Online now</h2></div><span class="section-art" aria-hidden="true">🌿</span></div><ul id="player-list" class="player-list"><li>Scanning the islands…</li></ul></section>
-      <section class="card section-card"><div class="section-heading"><div><p class="eyebrow">Campfire stories</p><h2>Recently played</h2></div><span class="week-chip">Last 7 days</span></div><ul id="recent-list" class="recent-list"><li>Checking the guild log…</li></ul></section>
+      <section class="camp-panel online-panel"><div class="section-heading"><div><p class="eyebrow">Squad check</p><h2>Online now</h2></div><span class="section-art" aria-hidden="true">🌿</span></div><ul id="player-list" class="player-list"><li>Scanning the islands…</li></ul></section>
+      <section class="camp-panel recent-panel"><div class="section-heading"><div><p class="eyebrow">Campfire stories</p><h2>Recently played</h2></div><span class="week-chip">Last 7 days</span></div><ul id="recent-list" class="recent-list"><li>Checking the guild log…</li></ul></section>
     </section>
 
-    <section class="card section-card achievement-section">
+    <section class="achievement-section">
       <div class="section-heading"><div><p class="eyebrow">Guild Hall</p><h2>Accomplishments worth bragging about</h2><p class="section-lede">Milestones verified from the live world snapshot—never account IDs, addresses, or coordinates.</p></div><span class="trophy" aria-hidden="true">🏆</span></div>
       <div id="achievement-grid" class="achievement-grid"><p class="muted">Reviewing the guild records…</p></div>
     </section>
 
-    <section class="card companion-banner">
+    <section class="companion-banner expedition-poster">
       <img src="official-adventure-hd.jpg" alt="Official Palworld screenshot showing four players setting out together on their Pals">
       <div><p class="eyebrow">The wilds are calling</p><h2>Pack up. Party up. Head out.</h2><p>See who is ready to explore, catch up with the guild, and choose the next horizon together.</p></div>
     </section>
@@ -114,6 +114,6 @@
 
   <footer><div class="footer-mark" aria-hidden="true">✦</div><p><strong>Last sync</strong> · <time id="updated">Waiting for first snapshot</time></p><small>Fresh server intel lands about every five minutes. Public data is explicitly allowlisted; account identifiers, addresses and world coordinates stay on Batty Mac.</small></footer>
 </main>
-<script src="status.js?v=6"></script>
+<script src="status.js?v=7"></script>
 </body>
 </html>
