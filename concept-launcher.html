@@ -22,7 +22,8 @@
       <button type="button" data-view-target="party" aria-label="Players"><i class="bi bi-people-fill"></i></button>
       <button type="button" data-view-target="world" aria-label="World settings"><i class="bi bi-sliders"></i></button>
       <button type="button" data-view-target="guilds" aria-label="Guild records"><i class="bi bi-shield-fill"></i></button>
-      <button type="button" data-view-target="details" aria-label="Server details"><i class="bi bi-info-circle-fill"></i></button>
+      <button type="button" data-view-target="achievements" aria-label="Achievements"><i class="bi bi-trophy-fill"></i></button>
+      <button type="button" data-view-target="overkill" aria-label="Data overload"><i class="bi bi-bar-chart-fill"></i></button>
     </nav>
 
     <div class="system-status">
@@ -62,7 +63,7 @@
           <span>World progress</span>
         </button>
 
-        <button class="home-tile fps-tile" type="button" data-view-target="details">
+        <button class="home-tile fps-tile" type="button" data-view-target="overkill">
           <i class="bi bi-speedometer2 tile-icon"></i>
           <strong data-field="fps">—</strong>
           <span>server FPS</span>
@@ -100,7 +101,16 @@
 
     <section class="view-pane content-shelf content-screen party-shelf" id="party" data-view="party" hidden>
       <header><div><small>PEOPLE</small><h2>Playing now</h2></div><span class="live-label"><i data-status-dot></i> LIVE</span></header>
-      <ul id="concept-online" class="party-list"></ul>
+      <div class="people-columns">
+        <section>
+          <h3><i class="bi bi-controller"></i> Online</h3>
+          <ul id="concept-online" class="party-list"></ul>
+        </section>
+        <section class="offline-section">
+          <h3><i class="bi bi-clock-history"></i> Offline · Previously seen</h3>
+          <ul id="concept-recent" class="recent-list"></ul>
+        </section>
+      </div>
     </section>
 
     <section class="view-pane content-shelf content-screen guild-shelf" id="guilds" data-view="guilds" hidden>
@@ -108,15 +118,19 @@
       <div id="concept-guilds" class="guild-grid"></div>
     </section>
 
-    <section class="view-pane content-shelf content-screen details-screen" id="details" data-view="details" hidden>
-      <header><div><small>SERVER DETAILS</small><h2>The world at a glance</h2></div><span><kbd>Y</kbd> Live snapshot</span></header>
-      <div class="detail-grid">
-        <article><i class="bi bi-activity"></i><small>SERVER STATUS</small><strong data-field="status">—</strong></article>
-        <article><i class="bi bi-speedometer2"></i><small>PERFORMANCE</small><strong><span data-field="fps">—</span> FPS</strong></article>
-        <article><i class="bi bi-sun-fill"></i><small>WORLD PROGRESS</small><strong>Day <span data-field="day">—</span></strong></article>
-        <article><i class="bi bi-stopwatch-fill"></i><small>CURRENT UPTIME</small><strong data-field="uptime">—</strong></article>
-        <article><i class="bi bi-houses-fill"></i><small>ACTIVE CAMPS</small><strong data-field="bases">—</strong></article>
-        <article><i class="bi bi-controller"></i><small>SERVER CAPACITY</small><strong><span data-field="players">—</span> / <span data-field="max-players">—</span></strong></article>
+    <section class="view-pane content-shelf content-screen achievement-screen" id="achievements" data-view="achievements" hidden>
+      <header><div><small>ACCOMPLISHMENTS</small><h2>Legends of Palpagos</h2></div><span><kbd>Y</kbd> Current world census</span></header>
+      <p class="screen-intro">These accomplishments are inferred from the server’s live guild and workforce snapshot. Boss kills and old events are not exposed by Palworld’s public data yet.</p>
+      <div id="concept-achievements" class="achievement-grid"></div>
+    </section>
+
+    <section class="view-pane content-shelf content-screen overkill-screen" id="overkill" data-view="overkill" hidden>
+      <header><div><small>DATA OVERLOAD</small><h2>Way too much information</h2></div><span><kbd>Y</kbd> Sanitized public telemetry</span></header>
+      <div id="concept-overkill-summary" class="detail-grid"></div>
+      <div class="overkill-columns">
+        <section><h3><i class="bi bi-activity"></i> Pal census</h3><div id="concept-census" class="data-list"></div></section>
+        <section><h3><i class="bi bi-person-vcard-fill"></i> Online player detail</h3><div id="concept-player-detail" class="data-list"></div></section>
+        <section class="configuration-panel"><h3><i class="bi bi-sliders2-vertical"></i> Active configuration</h3><div id="concept-configuration" class="data-list configuration-list"></div></section>
       </div>
     </section>
   </main>

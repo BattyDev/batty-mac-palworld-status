@@ -118,7 +118,10 @@ function renderRecent(data) {
   const host = $("#concept-recent");
   if (!host) return;
   host.replaceChildren();
-  const recent = Array.isArray(data.recent_players) ? data.recent_players.slice(0, 5) : [];
+  const onlineNames = new Set(Array.isArray(data.player_names) ? data.player_names : []);
+  const recent = Array.isArray(data.recent_players)
+    ? data.recent_players.filter(player => !onlineNames.has(player.name)).slice(0, 10)
+    : [];
   for (const player of recent) {
     const item = document.createElement("li");
     const name = document.createElement("strong");
@@ -130,8 +133,118 @@ function renderRecent(data) {
   }
   if (!recent.length) {
     const item = document.createElement("li");
-    item.textContent = "No recent visitors";
+    item.textContent = "Everyone recently seen is currently online.";
     host.append(item);
+  }
+}
+
+function achievementsForGuild(guild) {
+  const achievements = [];
+  const bases = finite(guild.bases);
+  const workers = finite(guild.workers);
+  const levels = guild.worker_levels || {};
+  const health = finite(guild.worker_health_average);
+  const working = finite(guild.top_worker_actions?.find(action => action.name === "Working")?.count);
+  const add = (icon, title, detail, rank) => achievements.push({icon, title, detail, rank});
+
+  if (bases >= 1) add("bi-house-heart-fill", "Camp Established", `${bases === 1 ? "First base is online" : `${bases} active bases across the islands`}.`, 1);
+  if (bases >= 3) add("bi-map-fill", "Island Network", `A network of ${bases} working bases.`, 3);
+  if (workers >= 10) add("bi-people-fill", "Crew Assembled", `${workers} working Pals keep the guild moving.`, 2);
+  if (workers >= 30) add("bi-gear-wide-connected", "Industrial Powerhouse", `A workforce ${workers} Pals strong.`, 4);
+  if (finite(levels.maximum) >= 50) add("bi-star-fill", "Veteran Workforce", `Raised a base worker to level ${levels.maximum}.`, 5);
+  if (health >= 95 && workers >= 5) add("bi-heart-pulse-fill", "Well-Kept Crew", `${tidy(health)}% average worker health.`, 3);
+  if (working >= 20) add("bi-hammer", "Always Building", `${working} Pals working in the latest snapshot.`, 3);
+  return achievements;
+}
+
+function renderAchievements(data) {
+  const host = $("#concept-achievements");
+  if (!host) return;
+  host.replaceChildren();
+  const guilds = Array.isArray(data.guilds) ? data.guilds : [];
+
+  for (const guild of guilds) {
+    for (const achievement of achievementsForGuild(guild)) {
+      const card = document.createElement("article");
+      card.className = `achievement-card rank-${achievement.rank}`;
+      const icon = document.createElement("i");
+      icon.className = `bi ${achievement.icon}`;
+      const copy = document.createElement("div");
+      const guildName = document.createElement("small");
+      guildName.textContent = guild.name;
+      const title = document.createElement("h3");
+      title.textContent = achievement.title;
+      const detail = document.createElement("p");
+      detail.textContent = achievement.detail;
+      copy.append(guildName, title, detail);
+      card.append(icon, copy);
+      host.append(card);
+    }
+  }
+
+  if (!host.children.length) host.textContent = "The current snapshot has not unlocked any guild accomplishments yet.";
+}
+
+function displayData(value) {
+  if (Array.isArray(value)) return value.join(", ");
+  if (typeof value === "boolean") return value ? "Enabled" : "Disabled";
+  if (value == null || value === "") return "—";
+  return typeof value === "number" ? tidy(value) : String(value);
+}
+
+function addDataRow(host, label, value) {
+  const row = document.createElement("div");
+  const term = document.createElement("span");
+  const detail = document.createElement("strong");
+  term.textContent = label;
+  detail.textContent = displayData(value);
+  row.append(term, detail);
+  host.append(row);
+}
+
+function renderOverkill(data, online) {
+  const summary = $("#concept-overkill-summary");
+  const censusHost = $("#concept-census");
+  const playerHost = $("#concept-player-detail");
+  const configHost = $("#concept-configuration");
+  if (!summary || !censusHost || !playerHost || !configHost) return;
+  summary.replaceChildren();
+  censusHost.replaceChildren();
+  playerHost.replaceChildren();
+  configHost.replaceChildren();
+
+  const performance = data.performance || {};
+  const system = data.system || {};
+  const census = data.pal_census || {};
+  const summaryItems = [
+    ["bi-activity", "Server status", online ? "Online" : "Offline"],
+    ["bi-speedometer2", "Average FPS", performance.average_fps ?? data.fps],
+    ["bi-hourglass-split", "Frame time", performance.frame_time_ms == null ? "—" : `${tidy(performance.frame_time_ms)} ms`],
+    ["bi-memory", "Palworld memory", system.palworld_memory_gib == null ? "—" : `${tidy(system.palworld_memory_gib)} GiB`],
+    ["bi-thermometer-half", "Host temperature", system.temperature_c == null ? "—" : `${tidy(system.temperature_c)} °C`],
+    ["bi-database-fill", "Disk free", system.disk_free_gib == null ? "—" : `${tidy(system.disk_free_gib)} GiB`]
+  ];
+  for (const [iconName, label, value] of summaryItems) {
+    const card = document.createElement("article");
+    const icon = document.createElement("i");
+    icon.className = `bi ${iconName}`;
+    const small = document.createElement("small");
+    small.textContent = label;
+    const strong = document.createElement("strong");
+    strong.textContent = displayData(value);
+    card.append(icon, small, strong);
+    summary.append(card);
+  }
+
+  addDataRow(censusHost, "Total actors", census.total_actors);
+  for (const [label, value] of Object.entries(census.counts || {})) addDataRow(censusHost, label, value);
+  for (const [label, value] of Object.entries(census.health_average || {})) addDataRow(censusHost, `${label} health`, `${tidy(value)}%`);
+  for (const player of Array.isArray(data.online_players) ? data.online_players : []) {
+    addDataRow(playerHost, player.name, `Lv ${displayData(player.level)} · ${tidy(player.ping)} ms · ${player.guild || "No guild"}`);
+  }
+  if (!playerHost.children.length) addDataRow(playerHost, "Players", "Nobody online");
+  for (const [label, value] of Object.entries(data.configuration || {}).sort(([a], [b]) => a.localeCompare(b))) {
+    addDataRow(configHost, label, value);
   }
 }
 
@@ -184,6 +297,8 @@ async function loadConcept() {
     renderOnline(data);
     renderRecent(data);
     renderGuilds(data);
+    renderAchievements(data);
+    renderOverkill(data, online);
   } catch (_) {
     fill("status", "Signal lost");
     for (const node of all("[data-status-dot]")) node.classList.remove("is-online");
