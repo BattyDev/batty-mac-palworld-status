@@ -129,9 +129,14 @@ function appendParty(host, pals, emptyCopy = "No companion has been observed in 
       const title = document.createElement("strong");
       title.textContent = pal.nickname || pal.species || "Unknown Pal";
       const species = document.createElement("small");
-      species.textContent = pal.nickname ? pal.species : `Lv ${tidy(pal.level)}`;
+      species.textContent = pal.nickname
+        ? pal.species
+        : (Array.isArray(pal.elements) && pal.elements.length ? pal.elements.join(" / ") : "Party Pal");
       const meta = document.createElement("span");
-      meta.textContent = `${pal.nickname ? `Lv ${tidy(pal.level)} · ` : ""}${"★".repeat(finite(pal.stars))}${"☆".repeat(Math.max(0, 4 - finite(pal.stars)))}`;
+      meta.className = "pal-party-meta";
+      const level = document.createElement("b");
+      level.textContent = `Lv ${tidy(pal.level)}`;
+      meta.append(level, createStarRating(pal.stars, true));
       copy.append(title, species, meta);
       card.append(portrait, copy);
       card.addEventListener("click", () => openPalInspector(pal));
@@ -151,6 +156,29 @@ function appendParty(host, pals, emptyCopy = "No companion has been observed in 
   }
   wrapper.append(label, chips);
   host.append(wrapper);
+}
+
+function createStarRating(value, compact = false) {
+  const rating = Math.max(0, Math.min(4, Math.round(finite(value))));
+  const wrapper = document.createElement("span");
+  wrapper.className = `star-rating${compact ? " is-compact" : ""}`;
+  wrapper.setAttribute("aria-label", `${rating} of 4 condensation stars`);
+
+  const icons = document.createElement("span");
+  icons.className = "star-icons";
+  icons.setAttribute("aria-hidden", "true");
+  for (let index = 1; index <= 4; index += 1) {
+    const star = document.createElement("i");
+    star.className = index <= rating ? "is-filled" : "is-empty";
+    star.textContent = "\u2605";
+    icons.append(star);
+  }
+
+  const count = document.createElement("b");
+  count.className = "star-count";
+  count.textContent = `${rating}/4`;
+  wrapper.append(icons, count);
+  return wrapper;
 }
 
 function showcaseParty(data, playerName, fallback = []) {
@@ -245,8 +273,7 @@ function openPalInspector(pal) {
   setText("[data-pal-gender]", pal.gender ? ` · ${pal.gender}` : "");
   setText("[data-pal-owner]", pal.owner ? ` · ${pal.owner}'s party` : "");
   const stars = $("[data-pal-stars]");
-  stars.textContent = `${"★".repeat(finite(pal.stars))}${"☆".repeat(Math.max(0, 4 - finite(pal.stars)))}`;
-  stars.setAttribute("aria-label", `${finite(pal.stars)} of 4 condensation stars`);
+  stars.replaceChildren(createStarRating(pal.stars));
 
   const elements = $("[data-pal-elements]");
   elements.replaceChildren();
