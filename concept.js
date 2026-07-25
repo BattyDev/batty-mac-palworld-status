@@ -320,7 +320,7 @@ function renderBossRadar(data) {
   list.replaceChildren();
   summary.replaceChildren();
   empty.hidden = bosses.length > 0;
-  const trackerFresh = tracker.updated_at && Date.now() - Date.parse(tracker.updated_at) < 2 * 60 * 1000;
+  const trackerFresh = tracker.updated_at && Date.now() - Date.parse(tracker.updated_at) < 7 * 60 * 1000;
   for (const node of all("[data-boss-signal]")) node.classList.toggle("is-live", Boolean(trackerFresh));
   coverage.textContent = bosses.length
     ? `${bosses.length} alpha${bosses.length === 1 ? "" : "s"} learned · regions load near players`
