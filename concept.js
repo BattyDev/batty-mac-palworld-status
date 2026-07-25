@@ -108,7 +108,8 @@ function appendParty(host, pals, emptyCopy = "No companion has been observed in 
   for (const pal of Array.isArray(pals) ? pals.slice(0, 5) : []) {
     const chip = document.createElement("span");
     const species = pal.species || pal.name || "Unknown Pal";
-    chip.textContent = pal.level == null ? species : `${species} · Lv ${tidy(pal.level)}`;
+    const name = pal.nickname ? `${pal.nickname} (${species})` : species;
+    chip.textContent = pal.level == null ? name : `${name} · Lv ${tidy(pal.level)}`;
     chips.append(chip);
   }
   if (!chips.children.length) {
@@ -419,7 +420,8 @@ function renderGuilds(data) {
       for (const worker of Array.isArray(base.workers) ? base.workers : []) {
         const row = document.createElement("div");
         const workerName = document.createElement("strong");
-        workerName.textContent = worker.species || "Unknown Pal";
+        const species = worker.species || "Unknown Pal";
+        workerName.textContent = worker.nickname ? `${worker.nickname} (${species})` : species;
         const stats = document.createElement("span");
         const parts = [
           worker.level == null ? null : `Lv ${tidy(worker.level)}`,
