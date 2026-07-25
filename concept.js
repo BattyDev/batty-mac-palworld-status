@@ -98,18 +98,74 @@ function renderHighlights(data) {
   }
 }
 
+function appendParty(host, pals, emptyCopy = "No companion has been observed in the latest loaded snapshot.") {
+  const wrapper = document.createElement("div");
+  wrapper.className = "party-sightings";
+  const label = document.createElement("small");
+  label.textContent = "Party sightings";
+  const chips = document.createElement("div");
+  chips.className = "pal-chips";
+  for (const pal of Array.isArray(pals) ? pals.slice(0, 5) : []) {
+    const chip = document.createElement("span");
+    const species = pal.species || pal.name || "Unknown Pal";
+    chip.textContent = pal.level == null ? species : `${species} · Lv ${tidy(pal.level)}`;
+    chips.append(chip);
+  }
+  if (!chips.children.length) {
+    const empty = document.createElement("em");
+    empty.textContent = emptyCopy;
+    chips.append(empty);
+  }
+  wrapper.append(label, chips);
+  host.append(wrapper);
+}
+
 function renderOnline(data) {
   const host = $("#concept-online");
   if (!host) return;
   host.replaceChildren();
-  const names = Array.isArray(data.player_names) ? data.player_names : [];
-  for (const name of names.length ? names : ["The islands are quiet"]) {
+  const players = Array.isArray(data.online_players) ? data.online_players : [];
+  for (const player of players) {
     const item = document.createElement("li");
+    item.className = "player-card";
     const avatar = document.createElement("span");
-    avatar.textContent = names.length ? name.slice(0, 1).toUpperCase() : "—";
-    const label = document.createElement("strong");
-    label.textContent = name;
-    item.append(avatar, label);
+    avatar.className = "player-avatar";
+    avatar.textContent = (player.name || "?").slice(0, 1).toUpperCase();
+    const body = document.createElement("div");
+    body.className = "player-card-body";
+    const heading = document.createElement("div");
+    heading.className = "player-card-heading";
+    const name = document.createElement("strong");
+    name.textContent = player.name || "Unknown player";
+    const guild = document.createElement("span");
+    guild.textContent = player.guild || "No guild observed";
+    heading.append(name, guild);
+    const stats = document.createElement("dl");
+    stats.className = "player-stats";
+    const values = [
+      ["Level", player.level],
+      ["Health", player.health_percent == null ? null : `${tidy(player.health_percent)}%`],
+      ["Ping", player.ping == null ? null : `${tidy(player.ping)} ms`],
+      ["Activity", player.action || player.stage || "Exploring"]
+    ];
+    for (const [term, value] of values) {
+      const block = document.createElement("div");
+      const dt = document.createElement("dt");
+      const dd = document.createElement("dd");
+      dt.textContent = term;
+      dd.textContent = value == null ? "—" : value;
+      block.append(dt, dd);
+      stats.append(block);
+    }
+    body.append(heading, stats);
+    appendParty(body, player.party_sightings);
+    item.append(avatar, body);
+    host.append(item);
+  }
+  if (!players.length) {
+    const item = document.createElement("li");
+    item.className = "people-empty";
+    item.textContent = "The islands are quiet. Nobody is online.";
     host.append(item);
   }
 }
@@ -119,20 +175,37 @@ function renderRecent(data) {
   if (!host) return;
   host.replaceChildren();
   const onlineNames = new Set(Array.isArray(data.player_names) ? data.player_names : []);
-  const recent = Array.isArray(data.recent_players)
-    ? data.recent_players.filter(player => !onlineNames.has(player.name)).slice(0, 10)
+  const source = Array.isArray(data.known_players) ? data.known_players : data.recent_players;
+  const recent = Array.isArray(source)
+    ? source.filter(player => !player.online && !onlineNames.has(player.name)).slice(0, 20)
     : [];
   for (const player of recent) {
     const item = document.createElement("li");
+    item.className = "offline-player-card";
+    const body = document.createElement("div");
+    body.className = "player-card-body";
+    const heading = document.createElement("div");
+    heading.className = "player-card-heading";
     const name = document.createElement("strong");
     name.textContent = player.name;
+    const guild = document.createElement("span");
+    guild.textContent = player.guild || "Guild not observed";
+    heading.append(name, guild);
+    const details = document.createElement("div");
+    details.className = "offline-player-meta";
+    const level = document.createElement("span");
+    level.textContent = player.level == null ? "Level unknown" : `Level ${tidy(player.level)}`;
     const time = document.createElement("span");
-    time.textContent = `${seenAgo(player.last_seen)} ago`;
-    item.append(name, time);
+    time.textContent = player.last_seen ? `Last seen ${seenAgo(player.last_seen)} ago` : "Last seen before tracking began";
+    details.append(level, time);
+    body.append(heading, details);
+    appendParty(body, player.party_sightings, "No recent companion sighting.");
+    item.append(body);
     host.append(item);
   }
   if (!recent.length) {
     const item = document.createElement("li");
+    item.className = "people-empty";
     item.textContent = "Everyone recently seen is currently online.";
     host.append(item);
   }
@@ -240,7 +313,13 @@ function renderOverkill(data, online) {
   for (const [label, value] of Object.entries(census.counts || {})) addDataRow(censusHost, label, value);
   for (const [label, value] of Object.entries(census.health_average || {})) addDataRow(censusHost, `${label} health`, `${tidy(value)}%`);
   for (const player of Array.isArray(data.online_players) ? data.online_players : []) {
-    addDataRow(playerHost, player.name, `Lv ${displayData(player.level)} · ${tidy(player.ping)} ms · ${player.guild || "No guild"}`);
+    const companions = Array.isArray(player.party_sightings) ? player.party_sightings.length : 0;
+    const health = player.health_percent == null ? "health unknown" : `${tidy(player.health_percent)}% health`;
+    addDataRow(
+      playerHost,
+      player.name,
+      `Lv ${displayData(player.level)} · ${player.guild || "No guild"} · ${tidy(player.ping)} ms · ${health} · ${companions} party sighting${companions === 1 ? "" : "s"}`
+    );
   }
   if (!playerHost.children.length) addDataRow(playerHost, "Players", "Nobody online");
   for (const [label, value] of Object.entries(data.configuration || {}).sort(([a], [b]) => a.localeCompare(b))) {
@@ -255,21 +334,116 @@ function renderGuilds(data) {
   for (const guild of Array.isArray(data.guilds) ? data.guilds : []) {
     const achievement = achievementFor(guild);
     const article = document.createElement("article");
-    article.className = "concept-guild";
+    article.className = "guild-detail-card";
+    const header = document.createElement("header");
     const name = document.createElement("h3");
     name.textContent = guild.name;
-    const seal = document.createElement("div");
-    seal.className = "concept-seal";
-    const mark = document.createElement("b");
-    mark.textContent = achievement.mark;
-    const copy = document.createElement("span");
-    copy.innerHTML = `<strong></strong><small></small>`;
-    copy.querySelector("strong").textContent = achievement.title;
-    copy.querySelector("small").textContent = achievement.note;
-    seal.append(mark, copy);
-    const totals = document.createElement("p");
-    totals.textContent = `${finite(guild.bases)} bases · ${finite(guild.workers)} workers`;
-    article.append(name, seal, totals);
+    const totals = document.createElement("div");
+    totals.className = "guild-totals";
+    for (const [value, label] of [
+      [finite(guild.bases), "Bases"],
+      [finite(guild.workers), "Working Pals"],
+      [Array.isArray(guild.members) ? guild.members.length : finite(guild.online_players?.length), "Members observed"]
+    ]) {
+      const metric = document.createElement("span");
+      metric.innerHTML = `<strong>${value}</strong><small>${label}</small>`;
+      totals.append(metric);
+    }
+    header.append(name, totals);
+
+    const overview = document.createElement("div");
+    overview.className = "guild-overview";
+    const badge = document.createElement("b");
+    badge.textContent = achievement.mark;
+    const overviewCopy = document.createElement("span");
+    const workerLevels = guild.worker_levels || {};
+    overviewCopy.innerHTML = `<strong></strong><small></small>`;
+    overviewCopy.querySelector("strong").textContent = achievement.title;
+    overviewCopy.querySelector("small").textContent = [
+      achievement.note,
+      workerLevels.average == null ? null : `average worker level ${tidy(workerLevels.average)}`,
+      guild.worker_health_average == null ? null : `${tidy(guild.worker_health_average)}% average worker health`
+    ].filter(Boolean).join(" · ");
+    overview.append(badge, overviewCopy);
+
+    const columns = document.createElement("div");
+    columns.className = "guild-detail-columns";
+    const membersSection = document.createElement("section");
+    const membersTitle = document.createElement("h4");
+    membersTitle.innerHTML = `<i class="bi bi-people-fill"></i> Members`;
+    const memberList = document.createElement("div");
+    memberList.className = "guild-member-list";
+    for (const member of Array.isArray(guild.members) ? guild.members : []) {
+      const memberCard = document.createElement("article");
+      memberCard.className = `guild-member ${member.online ? "is-online" : ""}`;
+      const memberHead = document.createElement("div");
+      const memberName = document.createElement("strong");
+      memberName.textContent = member.name || "Unknown member";
+      const memberState = document.createElement("span");
+      memberState.textContent = member.online
+        ? "Online now"
+        : member.last_seen
+          ? `Seen ${seenAgo(member.last_seen)} ago`
+          : "Previously observed";
+      memberHead.append(memberName, memberState);
+      const level = document.createElement("small");
+      level.textContent = member.level == null ? "Level unknown" : `Level ${tidy(member.level)}`;
+      memberCard.append(memberHead, level);
+      appendParty(memberCard, member.party_sightings, "No recent companion sighting.");
+      memberList.append(memberCard);
+    }
+    if (!memberList.children.length) {
+      const empty = document.createElement("p");
+      empty.className = "guild-empty";
+      empty.textContent = "No members have been safely matched to this guild yet.";
+      memberList.append(empty);
+    }
+    membersSection.append(membersTitle, memberList);
+
+    const basesSection = document.createElement("section");
+    const basesTitle = document.createElement("h4");
+    basesTitle.innerHTML = `<i class="bi bi-houses-fill"></i> Bases & working Pals`;
+    const baseList = document.createElement("div");
+    baseList.className = "guild-base-list";
+    for (const base of Array.isArray(guild.bases_detail) ? guild.bases_detail : []) {
+      const details = document.createElement("details");
+      details.className = "guild-base";
+      const summary = document.createElement("summary");
+      const baseName = document.createElement("strong");
+      baseName.textContent = base.label || "Base";
+      const count = document.createElement("span");
+      count.textContent = `${finite(base.worker_count)} working Pals`;
+      summary.append(baseName, count);
+      const roster = document.createElement("div");
+      roster.className = "worker-roster";
+      for (const worker of Array.isArray(base.workers) ? base.workers : []) {
+        const row = document.createElement("div");
+        const workerName = document.createElement("strong");
+        workerName.textContent = worker.species || "Unknown Pal";
+        const stats = document.createElement("span");
+        const parts = [
+          worker.level == null ? null : `Lv ${tidy(worker.level)}`,
+          worker.health_percent == null ? null : `${tidy(worker.health_percent)}% HP`,
+          worker.action || null
+        ].filter(Boolean);
+        stats.textContent = parts.join(" · ") || "Details unavailable";
+        row.append(workerName, stats);
+        roster.append(row);
+      }
+      if (!roster.children.length) roster.textContent = "No workers were loaded near this Palbox in the latest snapshot.";
+      details.append(summary, roster);
+      if (!baseList.children.length) details.open = true;
+      baseList.append(details);
+    }
+    if (!baseList.children.length) {
+      const empty = document.createElement("p");
+      empty.className = "guild-empty";
+      empty.textContent = "Base rosters appear after the server observes the guild's loaded bases.";
+      baseList.append(empty);
+    }
+    basesSection.append(basesTitle, baseList);
+    columns.append(membersSection, basesSection);
+    article.append(header, overview, columns);
     host.append(article);
   }
   if (!host.children.length) host.textContent = "Guild records are waiting for the next active snapshot.";
