@@ -8,6 +8,9 @@ let conceptPortraits = {};
 let conceptPortraitLoad = null;
 let activeInspectorPal = null;
 let inspectorMaxed = false;
+let inspectorAnchor = null;
+let inspectorCloseTimer = null;
+const inspectorDesktopQuery = window.matchMedia("(hover: hover) and (pointer: fine) and (min-width: 901px)");
 
 const elementIcons = {
   neutral: "assets/elements/neutral.webp",
@@ -162,7 +165,23 @@ function appendParty(host, pals, emptyCopy = "No companion has been observed in 
       meta.append(level, createStarRating(pal.stars, true));
       copy.append(title, subline, meta);
       card.append(portrait, copy);
-      card.addEventListener("click", () => openPalInspector(pal));
+      const showDesktopPreview = () => {
+        if (!inspectorDesktopQuery.matches) return;
+        cancelInspectorClose();
+        openPalInspector(pal, card);
+      };
+      card.addEventListener("mouseenter", showDesktopPreview);
+      card.addEventListener("mouseleave", scheduleInspectorClose);
+      card.addEventListener("focus", showDesktopPreview);
+      card.addEventListener("blur", scheduleInspectorClose);
+      card.addEventListener("click", event => {
+        if (inspectorDesktopQuery.matches) {
+          event.preventDefault();
+          showDesktopPreview();
+          return;
+        }
+        openPalInspector(pal);
+      });
       chips.append(card);
       continue;
     }
@@ -310,9 +329,55 @@ function renderPartnerRank(pal, selectedLevel) {
   }
 }
 
-function openPalInspector(pal) {
+function cancelInspectorClose() {
+  if (inspectorCloseTimer == null) return;
+  window.clearTimeout(inspectorCloseTimer);
+  inspectorCloseTimer = null;
+}
+
+function scheduleInspectorClose() {
+  cancelInspectorClose();
+  inspectorCloseTimer = window.setTimeout(() => {
+    const inspector = $("#pal-inspector");
+    const anchorHovered = inspectorAnchor?.matches(":hover");
+    const inspectorHovered = inspector?.matches(":hover");
+    const focusInside = inspector?.contains(document.activeElement);
+    const anchorFocused = document.activeElement === inspectorAnchor;
+    if (anchorHovered || inspectorHovered || focusInside || anchorFocused) return;
+    closePalInspector();
+  }, 180);
+}
+
+function positionPalInspector(anchor) {
+  const inspector = $("#pal-inspector");
+  const panel = inspector?.querySelector(".pal-inspector-panel");
+  if (!inspector || !panel || !anchor || inspector.hidden || !inspector.classList.contains("is-popover")) return;
+
+  const anchorRect = anchor.getBoundingClientRect();
+  const panelRect = panel.getBoundingClientRect();
+  const gap = 12;
+  const edge = 12;
+  let left = anchorRect.right + gap;
+  if (left + panelRect.width > window.innerWidth - edge) {
+    left = anchorRect.left - panelRect.width - gap;
+  }
+  left = Math.max(edge, Math.min(left, window.innerWidth - panelRect.width - edge));
+
+  let top = anchorRect.top;
+  top = Math.max(edge, Math.min(top, window.innerHeight - panelRect.height - edge));
+  inspector.style.setProperty("--inspector-left", `${Math.round(left)}px`);
+  inspector.style.setProperty("--inspector-top", `${Math.round(top)}px`);
+}
+
+function openPalInspector(pal, anchor = null) {
   const inspector = $("#pal-inspector");
   if (!inspector || !pal) return;
+  cancelInspectorClose();
+  const popover = Boolean(anchor && inspectorDesktopQuery.matches);
+  inspectorAnchor = popover ? anchor : null;
+  inspector.classList.toggle("is-popover", popover);
+  inspector.classList.toggle("is-mobile-dialog", !popover);
+  inspector.querySelector(".pal-inspector-panel")?.setAttribute("aria-modal", popover ? "false" : "true");
   activeInspectorPal = pal;
   inspectorMaxed = false;
   setText("[data-pal-name]", pal.nickname || pal.species || "Unknown Pal");
@@ -423,15 +488,24 @@ function openPalInspector(pal) {
   }
 
   inspector.hidden = false;
-  document.body.classList.add("has-pal-inspector");
-  $(".pal-inspector-close")?.focus();
+  document.body.classList.toggle("has-pal-inspector", !popover);
+  if (popover) {
+    window.requestAnimationFrame(() => positionPalInspector(anchor));
+  } else {
+    $(".pal-inspector-close")?.focus();
+  }
 }
 
 function closePalInspector() {
   const inspector = $("#pal-inspector");
   if (!inspector || inspector.hidden) return;
+  cancelInspectorClose();
   inspector.hidden = true;
   activeInspectorPal = null;
+  inspectorAnchor = null;
+  inspector.classList.remove("is-popover", "is-mobile-dialog");
+  inspector.style.removeProperty("--inspector-left");
+  inspector.style.removeProperty("--inspector-top");
   document.body.classList.remove("has-pal-inspector");
 }
 
@@ -956,6 +1030,23 @@ setInterval(updateClock, 30000);
 for (const control of all("[data-pal-close]")) {
   control.addEventListener("click", closePalInspector);
 }
+
+const palInspector = $("#pal-inspector");
+palInspector?.addEventListener("mouseenter", cancelInspectorClose);
+palInspector?.addEventListener("mouseleave", () => {
+  if (palInspector.classList.contains("is-popover")) scheduleInspectorClose();
+});
+palInspector?.addEventListener("focusin", cancelInspectorClose);
+palInspector?.addEventListener("focusout", () => {
+  if (palInspector.classList.contains("is-popover")) scheduleInspectorClose();
+});
+
+window.addEventListener("resize", () => {
+  if (!$("#pal-inspector")?.hidden) closePalInspector();
+});
+window.addEventListener("scroll", () => {
+  if (inspectorAnchor) positionPalInspector(inspectorAnchor);
+}, {passive: true});
 
 $("[data-pal-maxed-toggle]")?.addEventListener("click", () => {
   if (!activeInspectorPal) return;
