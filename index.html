@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#07151c">
   <title>Batty Mac · Palworld Server Dashboard</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="concept-launcher.css?v=18">
+  <link rel="stylesheet" href="concept-launcher.css?v=30">
 </head>
 <body>
   <div class="wallpaper" aria-hidden="true"></div>
@@ -73,12 +73,12 @@
         <button class="home-tile boss-tile" type="button" data-view-target="bosses">
           <i class="bi bi-crosshair tile-icon"></i>
           <strong data-field="bosses-up">—</strong>
-          <span>bosses spotted</span>
+          <span>alive now</span>
         </button>
 
         <button class="home-tile image-tile guild-shortcut" type="button" data-view-target="guilds">
           <img src="official-adventure-hd.jpg" alt="">
-          <span><b>Guilds</b><small>See the world records</small></span>
+          <span><b><span data-field="guild-count">—</span> Guilds</b><small>See the world records</small></span>
         </button>
       </div>
 
@@ -105,51 +105,21 @@
         <div><small>LIVE WORLD RADAR</small><h2>Boss watch</h2></div>
         <span class="live-label"><i data-boss-signal></i> LOADED REGIONS</span>
       </header>
-      <p class="screen-intro">Bosses appear when somebody loads their region. A confirmed disappearance starts the timer; an unvisited region stays honestly marked as not observed.</p>
+      <p class="screen-intro">Alphas are assumed alive until a confirmed kill starts the respawn timer.</p>
       <div class="boss-layout">
-        <section class="boss-map-shell">
-          <div class="boss-map-head">
-            <div><small>PALPAGOS FIELD MAP</small><strong data-boss-coverage>Waiting for sightings</strong></div>
-            <div class="boss-map-legend">
+        <div class="boss-roster">
+          <div class="boss-roster-head">
+            <div><small>PALPAGOS FIELD REPORT</small><strong data-boss-coverage>Waiting for sightings</strong></div>
+            <div class="boss-legend">
               <span><i class="alive"></i>Alive</span>
               <span><i class="down"></i>Respawning</span>
-              <span><i class="unknown"></i>Not observed</span>
             </div>
           </div>
-          <div class="boss-map" id="boss-map" role="img" aria-label="Privacy-safe map of observed world bosses">
-            <svg class="island-map" viewBox="0 0 1000 700" aria-hidden="true">
-              <defs>
-                <linearGradient id="island-fill" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0" stop-color="#315d52"/>
-                  <stop offset="1" stop-color="#183d3c"/>
-                </linearGradient>
-                <filter id="island-shadow"><feDropShadow dx="0" dy="10" stdDeviation="12" flood-opacity=".45"/></filter>
-              </defs>
-              <g fill="url(#island-fill)" stroke="#7bd6bd" stroke-opacity=".23" stroke-width="4" filter="url(#island-shadow)">
-                <path d="M86 400c27-75 100-115 170-87 56 22 64 67 120 87 63 22 113-9 153 35 40 45 7 114-42 142-77 45-207 55-312 8-75-34-117-105-89-185Z"/>
-                <path d="M350 180c35-83 124-114 201-78 56 26 56 81 106 109 50 29 112 2 142 52 31 53-18 105-71 120-80 24-193-4-277-49-67-35-130-85-101-154Z"/>
-                <path d="M705 433c52-55 139-52 185 0 39 44 20 98-22 133-54 45-159 64-220 17-53-41-16-113 57-150Z"/>
-                <path d="M121 145c36-42 97-49 138-18 34 26 25 72-10 99-44 35-125 42-158 4-25-29-3-65 30-85Z"/>
-              </g>
-              <g fill="none" stroke="#8be2d0" stroke-opacity=".1" stroke-width="2">
-                <path d="M20 150c190 120 343 83 487 219s289 110 467 39"/>
-                <path d="M89 635c128-182 249-193 397-309s286-135 431-244"/>
-              </g>
-            </svg>
-            <div id="boss-markers" class="boss-markers"></div>
-            <div class="boss-map-empty" id="boss-map-empty">
-              <i class="bi bi-binoculars-fill"></i>
-              <strong>No alpha sightings yet</strong>
-              <span>Visit a field boss once and the radar will learn it.</span>
-            </div>
-          </div>
-        </section>
-        <aside class="boss-roster">
           <div class="boss-summary" id="boss-summary"></div>
           <div class="boss-list" id="boss-list"></div>
-        </aside>
+        </div>
       </div>
-      <p class="boss-privacy"><i class="bi bi-shield-lock-fill"></i> Exact coordinates and player positions stay on batty-mac. The public map receives normalized boss markers only.</p>
+      <p class="boss-privacy"><i class="bi bi-shield-lock-fill"></i> Exact coordinates and player positions stay on batty-mac. The public report receives normalized boss status only.</p>
     </section>
 
     <section class="view-pane content-shelf content-screen" id="world" data-view="world" hidden>
@@ -194,6 +164,77 @@
     </section>
   </main>
 
+  <div class="pal-inspector" id="pal-inspector" hidden>
+    <button class="pal-inspector-backdrop" type="button" data-pal-close aria-label="Close Pal inspection"></button>
+    <article class="pal-inspector-panel" role="dialog" aria-modal="false" aria-labelledby="pal-inspector-title">
+      <button class="pal-inspector-back" type="button" data-pal-close aria-label="Back"><i class="bi bi-arrow-left"></i> Back</button>
+      <button class="pal-inspector-close" type="button" data-pal-close aria-label="Close Pal inspection"><i class="bi bi-x-lg"></i></button>
+      <header class="pal-inspector-header">
+        <div class="pal-level-badge"><small>LEVEL</small><strong data-pal-level>—</strong></div>
+        <div>
+          <div class="pal-stars" data-pal-stars aria-label="Condensation stars"></div>
+          <h2 id="pal-inspector-title" data-pal-name>Pal</h2>
+          <p><span data-pal-species></span><span data-pal-gender></span><span data-pal-owner></span></p>
+          <div class="pal-elements" data-pal-elements></div>
+        </div>
+      </header>
+
+      <div class="pal-inspector-layout">
+        <section class="pal-inspector-left">
+          <div class="pal-data-section partner-section">
+            <div class="pal-section-heading"><span>Partner Skill</span><b data-pal-partner-name>—</b></div>
+            <div class="partner-ranks" data-pal-partner-ranks></div>
+            <p data-pal-partner-effect>No partner-skill data available.</p>
+          </div>
+          <div class="pal-data-section">
+            <div class="pal-section-heading"><span>Active Skills</span></div>
+            <div class="pal-skill-list" data-pal-active-skills></div>
+          </div>
+          <div class="pal-data-section">
+            <div class="pal-section-heading"><span>Passive Skills</span></div>
+            <div class="pal-passive-list" data-pal-passives></div>
+          </div>
+        </section>
+
+        <section class="pal-inspector-center" aria-label="Pal portrait">
+          <div class="pal-portrait-aura"></div>
+          <img data-pal-portrait alt="">
+          <div class="pal-flag-row" data-pal-flags></div>
+          <button class="maxed-toggle" type="button" data-pal-maxed-toggle><i class="bi bi-stars"></i> Compare maxed potential</button>
+        </section>
+
+        <section class="pal-inspector-right">
+          <div class="pal-data-section trust-section">
+            <div class="pal-section-heading"><span>Trust</span><b data-pal-trust-rank>—</b></div>
+            <div class="trust-track"><i data-pal-trust-bar></i></div>
+            <small data-pal-trust-copy>—</small>
+          </div>
+          <div class="pal-data-section">
+            <div class="pal-section-heading"><span>Stats</span><small data-pal-stats-mode>Current build</small></div>
+            <dl class="pal-stat-grid" data-pal-stats></dl>
+          </div>
+          <div class="pal-data-section">
+            <div class="pal-section-heading"><span>Potential</span><small>0–100</small></div>
+            <dl class="pal-potential-grid" data-pal-potential></dl>
+          </div>
+          <div class="pal-data-section">
+            <div class="pal-section-heading"><span>Soul Enhancements</span><small>0–20</small></div>
+            <dl class="pal-soul-grid" data-pal-souls></dl>
+          </div>
+          <div class="pal-data-section">
+            <div class="pal-section-heading"><span>Work Suitability</span></div>
+            <div class="pal-work-list" data-pal-work></div>
+          </div>
+          <details class="pal-data-section learned-section">
+            <summary>Learned skill library <span data-pal-learned-count>0</span></summary>
+            <div class="pal-learned-list" data-pal-learned></div>
+          </details>
+        </section>
+      </div>
+      <footer class="pal-inspector-controls"><span><kbd>A</kbd> Change partner rank</span><span><kbd>Y</kbd> Maxed comparison</span><span><kbd>B</kbd> Close</span></footer>
+    </article>
+  </div>
+
   <footer class="controller-bar">
     <span><kbd>A</kbd> Select</span>
     <button type="button" data-view-target="home"><kbd>B</kbd> Home</button>
@@ -201,6 +242,6 @@
     <small>UPDATED <b data-field="updated">—</b></small>
   </footer>
 
-  <script src="concept.js?v=15"></script>
+  <script src="concept.js?v=28"></script>
 </body>
 </html>
