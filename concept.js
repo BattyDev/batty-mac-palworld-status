@@ -581,7 +581,12 @@ function openPalInspector(pal, anchor = null) {
   if (popover) {
     window.requestAnimationFrame(() => positionPalInspector(anchor));
   } else {
-    $(".pal-inspector-close")?.focus();
+    // preventScroll matters specifically on iOS Safari: without it, focusing
+    // the close button right as the fixed-position dialog opens can trigger
+    // Safari's focus-triggered scroll-into-view against the dynamic
+    // address-bar viewport, which can leave the dialog looking like it never
+    // opened.
+    $(".pal-inspector-close")?.focus({preventScroll: true});
   }
 }
 
