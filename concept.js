@@ -320,8 +320,20 @@ function renderSkillList(host, skills, emptyCopy) {
   }
 }
 
+function normalizedPartnerSkill(pal) {
+  const source = Array.isArray(pal?.partner_skill?.levels) ? pal.partner_skill.levels : [];
+  const legacyOneBased = source.length > 0
+    && !source.some(item => finite(item.level) === 0)
+    && source.every(item => finite(item.level) >= 1 && finite(item.level) <= 5);
+  const offset = legacyOneBased ? 1 : 0;
+  return {
+    levels: source.map(item => ({...item, level: finite(item.level) - offset})),
+    currentLevel: Math.max(0, Math.min(4, finite(pal?.partner_skill?.current_level) - offset))
+  };
+}
+
 function renderPartnerRank(pal, selectedLevel) {
-  const levels = pal?.partner_skill?.levels || [];
+  const levels = normalizedPartnerSkill(pal).levels;
   const selected = levels.find(item => finite(item.level) === finite(selectedLevel)) || levels[0];
   setText("[data-pal-partner-effect]", selected?.effect || "No partner-skill effect data available.");
   for (const button of all("[data-partner-rank]")) {
@@ -402,7 +414,8 @@ function openPalInspector(pal, anchor = null) {
   setText("[data-pal-partner-name]", pal.partner_skill?.name || "Partner Skill");
   const rankHost = $("[data-pal-partner-ranks]");
   rankHost.replaceChildren();
-  for (const level of pal.partner_skill?.levels || []) {
+  const partnerSkill = normalizedPartnerSkill(pal);
+  for (const level of partnerSkill.levels) {
     const button = document.createElement("button");
     button.type = "button";
     button.dataset.partnerRank = level.level;
@@ -410,7 +423,7 @@ function openPalInspector(pal, anchor = null) {
     button.addEventListener("click", () => renderPartnerRank(pal, level.level));
     rankHost.append(button);
   }
-  renderPartnerRank(pal, pal.partner_skill?.current_level || 1);
+  renderPartnerRank(pal, partnerSkill.currentLevel);
 
   renderSkillList($("[data-pal-active-skills]"), pal.active_skills, "No equipped active skills found.");
   renderSkillList($("[data-pal-learned]"), pal.learned_skills, "No learned-skill library found.");
