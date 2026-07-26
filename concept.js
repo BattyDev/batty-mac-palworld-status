@@ -170,14 +170,10 @@ function createStarRating(value, compact = false) {
   for (let index = 1; index <= 4; index += 1) {
     const star = document.createElement("i");
     star.className = index <= rating ? "is-filled" : "is-empty";
-    star.textContent = "\u2605";
+    star.textContent = index <= rating ? "\u2605" : "\u2606";
     icons.append(star);
   }
-
-  const count = document.createElement("b");
-  count.className = "star-count";
-  count.textContent = `${rating}/4`;
-  wrapper.append(icons, count);
+  wrapper.append(icons);
   return wrapper;
 }
 
