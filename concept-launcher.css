@@ -219,9 +219,16 @@ body{padding-bottom:72px}
 .pal-party-copy{display:flex;flex-direction:column;min-width:0;padding:11px 12px 12px}
 .pal-party-copy strong,.pal-party-copy small{overflow-wrap:anywhere}
 .pal-party-copy strong{min-height:2.5em;font:900 .92rem/1.25 "Nunito";letter-spacing:0;text-transform:none}
-.pal-party-copy small{min-height:2.65em;margin-top:5px;color:#bdd0d5;font:700 .7rem/1.32 "Nunito"}
+.pal-party-subline{display:flex;align-items:center;min-height:2.65em;margin-top:5px;gap:8px}
+.pal-party-subline small{min-width:0;color:#bdd0d5;font:700 .7rem/1.32 "Nunito"}
 .pal-party-meta{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px}
 .pal-party-meta>b{flex:0 0 auto;color:#fff;font:900 .82rem "Barlow Condensed"}
+
+.pal-element-icons{display:inline-flex;align-items:center;gap:7px;min-height:34px}
+.pal-element-icons.is-compact{min-height:26px;gap:4px}
+.pal-element-icon{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#08151cb8;filter:drop-shadow(0 2px 3px #000a)}
+.pal-element-icons.is-compact .pal-element-icon{width:26px;height:26px}
+.pal-element-icon img{display:block;width:100%;height:100%;object-fit:contain}
 
 .star-rating{display:inline-flex;align-items:center;min-width:0}
 .star-icons{display:inline-flex;align-items:center;gap:5px}
@@ -246,8 +253,7 @@ body.has-pal-inspector{overflow:hidden}
 .pal-inspector-header h2{margin:2px 0 0;font:900 clamp(2rem,4vw,3.2rem)/.9 "Barlow Condensed";text-transform:uppercase}
 .pal-inspector-header p{display:flex;flex-wrap:wrap;margin:9px 0 0;color:#d3e0e3;font-size:.9rem}
 .pal-stars{min-height:30px;margin-bottom:8px}
-.pal-elements{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px}.pal-elements span,.pal-flag-row span{padding:7px 11px;border:1px solid #ffffff45;background:#284654;color:#fff;font-size:.72rem;font-weight:900;text-transform:uppercase}
-.pal-elements .element-fire{background:#a33b23}.pal-elements .element-water{background:#1775a0}.pal-elements .element-dark{background:#533b76}.pal-elements .element-ice{background:#3189a2}.pal-elements .element-electricity{background:#9d7c13}.pal-elements .element-grass{background:#39722d}.pal-elements .element-earth{background:#796032}.pal-elements .element-dragon{background:#573c91}.pal-elements .element-neutral{background:#66747a}
+.pal-elements{display:flex;flex-wrap:wrap;margin-top:11px}.pal-elements>.pal-element-icons{gap:9px}.pal-elements .pal-element-icon{width:42px;height:42px;background:#07141bc4;box-shadow:0 0 0 1px #ffffff24}.pal-flag-row span{padding:7px 11px;border:1px solid #ffffff45;background:#284654;color:#fff;font-size:.72rem;font-weight:900;text-transform:uppercase}
 
 .pal-inspector-layout{position:relative;z-index:1;display:grid;grid-template-columns:minmax(350px,.94fr) minmax(400px,1.12fr) minmax(365px,.94fr);gap:18px;padding:20px}
 .pal-inspector-left,.pal-inspector-right{display:flex;flex-direction:column;gap:14px;min-width:0}

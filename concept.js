@@ -9,6 +9,20 @@ let conceptPortraitLoad = null;
 let activeInspectorPal = null;
 let inspectorMaxed = false;
 
+const elementIcons = {
+  neutral: "assets/elements/neutral.webp",
+  fire: "assets/elements/fire.webp",
+  water: "assets/elements/water.webp",
+  electricity: "assets/elements/electricity.webp",
+  electric: "assets/elements/electricity.webp",
+  grass: "assets/elements/grass.webp",
+  dark: "assets/elements/dark.webp",
+  dragon: "assets/elements/dragon.webp",
+  ground: "assets/elements/ground.webp",
+  earth: "assets/elements/ground.webp",
+  ice: "assets/elements/ice.webp"
+};
+
 const $ = selector => document.querySelector(selector);
 const all = selector => [...document.querySelectorAll(selector)];
 const finite = value => Number.isFinite(Number(value)) ? Number(value) : 0;
@@ -128,16 +142,22 @@ function appendParty(host, pals, emptyCopy = "No companion has been observed in 
       copy.className = "pal-party-copy";
       const title = document.createElement("strong");
       title.textContent = pal.nickname || pal.species || "Unknown Pal";
+      const subline = document.createElement("span");
+      subline.className = "pal-party-subline";
       const species = document.createElement("small");
-      species.textContent = pal.nickname
-        ? pal.species
-        : (Array.isArray(pal.elements) && pal.elements.length ? pal.elements.join(" / ") : "Party Pal");
+      const nickname = String(pal.nickname || "").trim();
+      const speciesName = String(pal.species || "").trim();
+      if (nickname && speciesName && nickname.toLocaleLowerCase() !== speciesName.toLocaleLowerCase()) {
+        species.textContent = speciesName;
+        subline.append(species);
+      }
+      subline.append(createElementIcons(pal.elements, true));
       const meta = document.createElement("span");
       meta.className = "pal-party-meta";
       const level = document.createElement("b");
       level.textContent = `Lv ${tidy(pal.level)}`;
       meta.append(level, createStarRating(pal.stars, true));
-      copy.append(title, species, meta);
+      copy.append(title, subline, meta);
       card.append(portrait, copy);
       card.addEventListener("click", () => openPalInspector(pal));
       chips.append(card);
@@ -174,6 +194,35 @@ function createStarRating(value, compact = false) {
     icons.append(star);
   }
   wrapper.append(icons);
+  return wrapper;
+}
+
+function createElementIcons(values, compact = false) {
+  const labels = [];
+  for (const value of Array.isArray(values) ? values : []) {
+    const label = String(value || "").trim();
+    const key = label.toLocaleLowerCase().replace(/[^a-z]/g, "");
+    if (label && elementIcons[key] && !labels.some(item => item.key === key)) {
+      labels.push({key, label});
+    }
+  }
+
+  const wrapper = document.createElement("span");
+  wrapper.className = `pal-element-icons${compact ? " is-compact" : ""}`;
+  wrapper.setAttribute("aria-label", labels.length ? `Elements: ${labels.map(item => item.label).join(", ")}` : "Elements unavailable");
+  wrapper.title = labels.map(item => item.label).join(" / ");
+
+  for (const {key, label} of labels) {
+    const icon = document.createElement("span");
+    icon.className = `pal-element-icon element-${key}`;
+    icon.title = label;
+    const image = document.createElement("img");
+    image.src = elementIcons[key];
+    image.alt = "";
+    image.setAttribute("aria-hidden", "true");
+    icon.append(image);
+    wrapper.append(icon);
+  }
   return wrapper;
 }
 
@@ -272,13 +321,7 @@ function openPalInspector(pal) {
   stars.replaceChildren(createStarRating(pal.stars));
 
   const elements = $("[data-pal-elements]");
-  elements.replaceChildren();
-  for (const element of Array.isArray(pal.elements) ? pal.elements : []) {
-    const chip = document.createElement("span");
-    chip.className = `element-${String(element).toLocaleLowerCase().replace(/[^a-z]/g, "")}`;
-    chip.textContent = element;
-    elements.append(chip);
-  }
+  elements.replaceChildren(createElementIcons(pal.elements));
 
   const portrait = $("[data-pal-portrait]");
   const portraitUrl = portraitForPal(pal);

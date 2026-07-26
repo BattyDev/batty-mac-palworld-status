@@ -19,6 +19,10 @@ community server's read-only showcase:
 - PalworldSaveTools: https://github.com/deafdudecomputers/PalworldSaveTools
 - Release used for the data catalog: https://github.com/deafdudecomputers/PalworldSaveTools/releases/tag/v2.2.1
 
+The Pal element symbols are extracted game-data assets from the same
+PalworldSaveTools catalog and are shown without text labels on party cards and
+Pal inspection views.
+
 Interface and world-setting symbols use Bootstrap Icons 1.13.1:
 
 - Project: https://icons.getbootstrap.com/
