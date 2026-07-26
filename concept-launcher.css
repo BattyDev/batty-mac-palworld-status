@@ -210,19 +210,19 @@ body{padding-bottom:72px}
 }
 
 /* Full party showcase and Pal inspection */
-.pal-party-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:10px}
+.pal-party-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:10px}
 .pal-party-card{min-width:0;overflow:hidden;padding:0;border:1px solid #63e5eb62;background:linear-gradient(155deg,#173642,#0a1d25);color:#fff;text-align:left;cursor:pointer;transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease}
 .pal-party-card:hover,.pal-party-card:focus-visible{z-index:2;transform:translateY(-3px) scale(1.02);border-color:#76f3f7;outline:2px solid #fff;outline-offset:2px;box-shadow:0 10px 24px #0009,0 0 24px #55dce62c}
 .pal-party-portrait{position:relative;display:grid;place-items:center;aspect-ratio:1.4/1;overflow:hidden;background:radial-gradient(circle at 50% 42%,#54e5e83d,transparent 56%),linear-gradient(145deg,#234d59,#0b2029)}
 .pal-party-portrait:after{content:"";position:absolute;inset:auto 0 0;height:35%;background:linear-gradient(transparent,#071219b8)}
 .pal-party-portrait>.pal-party-image{position:relative;z-index:1;width:88%;height:88%;object-fit:contain;filter:drop-shadow(0 8px 7px #0009)}
-.pal-party-copy{display:flex;flex-direction:column;min-width:0;padding:9px 10px 10px}
+.pal-party-copy{display:flex;flex-direction:column;min-width:0;padding:8px}
 .pal-party-copy strong,.pal-party-copy small{overflow-wrap:anywhere}
 .pal-party-copy strong{min-height:2.35em;font:900 1rem/1.18 "Nunito";letter-spacing:0;text-transform:none}
-.pal-party-subline{display:flex;align-items:center;min-height:1.9em;margin-top:3px}
-.pal-party-subline small{min-width:0;color:#bdd0d5;font:700 .72rem/1.3 "Nunito"}
-.pal-party-meta{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:6px}
-.pal-party-meta>b{flex:0 0 auto;color:#fff;font:900 .82rem "Barlow Condensed"}
+.pal-party-subline{display:flex;align-items:center;min-height:1.75em;margin-top:2px}
+.pal-party-subline small{min-width:0;color:#bdd0d5;font:700 .68rem/1.25 "Nunito"}
+.pal-party-meta{display:flex;align-items:center;justify-content:space-between;gap:4px;margin-top:5px}
+.pal-party-meta>b{flex:0 0 auto;color:#fff;font:900 .78rem "Barlow Condensed"}
 
 .pal-element-icons{display:inline-flex;align-items:center;gap:7px;min-height:34px}
 .pal-element-icons.is-compact{min-height:26px;gap:4px}
@@ -231,15 +231,15 @@ body{padding-bottom:72px}
 .pal-element-icon img{display:block;width:100%;height:100%;object-fit:contain}
 .pal-element-icons.is-overlay{position:absolute;z-index:4;right:7px;bottom:7px;min-height:0;padding:3px;border:1px solid #ffffff2e;border-radius:18px;background:#041017d9;box-shadow:0 3px 10px #000a}
 .pal-element-icons.is-overlay:empty{display:none}
-.pal-element-icons.is-overlay .pal-element-icon{width:25px;height:25px;background:transparent;filter:none}
+.pal-element-icons.is-overlay .pal-element-icon{width:22px;height:22px;background:transparent;filter:none}
 
 .star-rating{display:inline-flex;align-items:center;min-width:0}
 .star-icons{display:inline-flex;align-items:center;gap:5px}
 .star-icons i{display:inline-block;border:0;background:none;font:900 1.55rem/1 "Nunito";font-style:normal}
 .star-icons .is-filled{color:#ffd34f;text-shadow:0 0 9px #ffb91f8c}
 .star-icons .is-empty{color:#466a7b;text-shadow:0 0 6px #112d3b}
-.star-rating.is-compact .star-icons{gap:3px}
-.star-rating.is-compact .star-icons i{font-size:.9rem}
+.star-rating.is-compact .star-icons{gap:2px}
+.star-rating.is-compact .star-icons i{font-size:.8rem}
 
 body.has-pal-inspector{overflow:hidden}
 .pal-inspector[hidden]{display:none}
@@ -295,6 +295,9 @@ body.has-pal-inspector{overflow:hidden}
   .pal-inspector-center{grid-column:2;grid-row:1;min-height:500px}
   .pal-inspector-right{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr}
   .learned-section{grid-column:1/-1}
+}
+@media(max-width:1200px){
+  .pal-party-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
 }
 @media(max-width:900px){
   .pal-party-grid{grid-template-columns:repeat(2,minmax(135px,1fr))}
