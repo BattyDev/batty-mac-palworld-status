@@ -16,6 +16,16 @@ const playerIdentities = [
     character: "Batty",
     profile: "Batman JJK",
     aliases: ["Batty", "Batty JJK", "Batman JJK"]
+  },
+  {
+    character: "Marty katch'em",
+    profile: "shotbyMARTY",
+    aliases: ["Marty katch'em", "shotbyMARTY"]
+  },
+  {
+    character: "TheNumbersMason",
+    profile: "VapeNationMason",
+    aliases: ["TheNumbersMason", "VapeNationMason"]
   }
 ];
 
