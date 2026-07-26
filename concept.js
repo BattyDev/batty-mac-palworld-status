@@ -1031,12 +1031,11 @@ function selectBoss(key) {
   }
 }
 
+// Bosses are assumed alive unless a kill was actually observed (status
+// "down"); there is no third "not observed" state to display.
 function bossStatusCopy(boss) {
-  if (boss.status === "alive") {
-    return boss.health_percent == null ? "Alive now" : `${tidy(boss.health_percent)}% health`;
-  }
   if (boss.status === "down") return boss.estimate_source === "measured" ? "Measured respawn" : "Estimated respawn";
-  return boss.last_seen_at ? `Last seen ${seenAgo(boss.last_seen_at)} ago` : "Waiting for first sighting";
+  return boss.health_percent == null ? "Alive now" : `${tidy(boss.health_percent)}% health`;
 }
 
 // Same confirm-load-before-swap pattern as the gamerpic avatars: the status
@@ -1082,10 +1081,14 @@ function renderBossRadar(data) {
     : "Waiting for alpha sightings";
 
   const counts = tracker.summary || {};
+  // Fold any legacy "unknown" bucket the publisher might still send into
+  // alive: bosses are assumed alive unless a kill was actually observed.
+  const downCount = counts.down ?? bosses.filter(item => item.status === "down").length;
+  const aliveCount = (counts.alive ?? bosses.filter(item => item.status === "alive").length)
+    + (counts.unknown ?? bosses.filter(item => item.status === "unknown").length);
   const summaryItems = [
-    ["alive", counts.alive ?? bosses.filter(item => item.status === "alive").length, "Alive now"],
-    ["down", counts.down ?? bosses.filter(item => item.status === "down").length, "Respawning"],
-    ["unknown", counts.unknown ?? bosses.filter(item => item.status === "unknown").length, "Not observed"]
+    ["alive", aliveCount, "Alive now"],
+    ["down", downCount, "Respawning"]
   ];
   for (const [state, value, label] of summaryItems) {
     const card = document.createElement("article");
@@ -1097,11 +1100,11 @@ function renderBossRadar(data) {
     card.append(strong, span);
     summary.append(card);
   }
-  fill("bosses-up", finite(counts.alive));
+  fill("bosses-up", finite(aliveCount));
 
   for (const boss of bosses) {
     const key = String(boss.key || boss.name || "boss");
-    const status = ["alive", "down", "unknown"].includes(boss.status) ? boss.status : "unknown";
+    const status = boss.status === "down" ? "down" : "alive";
 
     const card = document.createElement("button");
     card.type = "button";
@@ -1109,7 +1112,7 @@ function renderBossRadar(data) {
     card.dataset.bossKey = key;
     const icon = document.createElement("span");
     icon.className = "boss-state-icon";
-    applyBossFace(icon, boss, status === "alive" ? "bi-lightning-charge-fill" : status === "down" ? "bi-hourglass-split" : "bi-eye-slash-fill");
+    applyBossFace(icon, boss, status === "down" ? "bi-hourglass-split" : "bi-lightning-charge-fill");
     const copy = document.createElement("span");
     copy.className = "boss-card-copy";
     const name = document.createElement("strong");
@@ -1166,9 +1169,14 @@ async function loadConcept() {
     fill("status", online ? "Online" : "Offline");
     fill("players", finite(data.players));
     fill("max-players", finite(data.max_players));
-    fill("fps", Math.round(finite(data.fps)));
+    // The average smooths out momentary dips (autosave, load spikes) that
+    // make the instantaneous reading look worse than the server's actual
+    // typical performance; fall back to the instantaneous fps if a
+    // publisher snapshot doesn't have the averaged field yet.
+    fill("fps", Math.round(finite(data.performance?.average_fps ?? data.fps)));
     fill("day", finite(data.world_day));
     fill("bases", finite(data.base_camps));
+    fill("guild-count", finite(Array.isArray(data.guilds) ? data.guilds.length : 0));
     fill("uptime", elapsed(data.uptime));
     fill("updated", new Date(data.updated_at).toLocaleString());
     for (const node of all("[data-status-dot]")) node.classList.toggle("is-online", online);
@@ -1207,6 +1215,7 @@ setInterval(updateClock, 30000);
 
 for (const control of all("[data-pal-close]")) {
   control.addEventListener("click", closePalInspector);
+  bindTap(control, closePalInspector);
 }
 
 const palInspector = $("#pal-inspector");

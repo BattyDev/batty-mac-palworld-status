@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#07151c">
   <title>Batty Mac · Palworld Server Dashboard</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="concept-launcher.css?v=29">
+  <link rel="stylesheet" href="concept-launcher.css?v=30">
 </head>
 <body>
   <div class="wallpaper" aria-hidden="true"></div>
@@ -73,12 +73,12 @@
         <button class="home-tile boss-tile" type="button" data-view-target="bosses">
           <i class="bi bi-crosshair tile-icon"></i>
           <strong data-field="bosses-up">—</strong>
-          <span>bosses spotted</span>
+          <span>alive now</span>
         </button>
 
         <button class="home-tile image-tile guild-shortcut" type="button" data-view-target="guilds">
           <img src="official-adventure-hd.jpg" alt="">
-          <span><b>Guilds</b><small>See the world records</small></span>
+          <span><b><span data-field="guild-count">—</span> Guilds</b><small>See the world records</small></span>
         </button>
       </div>
 
@@ -105,7 +105,7 @@
         <div><small>LIVE WORLD RADAR</small><h2>Boss watch</h2></div>
         <span class="live-label"><i data-boss-signal></i> LOADED REGIONS</span>
       </header>
-      <p class="screen-intro">Bosses appear when somebody loads their region. A confirmed disappearance starts the timer; an unvisited region stays honestly marked as not observed.</p>
+      <p class="screen-intro">Alphas are assumed alive until a confirmed kill starts the respawn timer.</p>
       <div class="boss-layout">
         <div class="boss-roster">
           <div class="boss-roster-head">
@@ -113,7 +113,6 @@
             <div class="boss-legend">
               <span><i class="alive"></i>Alive</span>
               <span><i class="down"></i>Respawning</span>
-              <span><i class="unknown"></i>Not observed</span>
             </div>
           </div>
           <div class="boss-summary" id="boss-summary"></div>
@@ -168,6 +167,7 @@
   <div class="pal-inspector" id="pal-inspector" hidden>
     <button class="pal-inspector-backdrop" type="button" data-pal-close aria-label="Close Pal inspection"></button>
     <article class="pal-inspector-panel" role="dialog" aria-modal="false" aria-labelledby="pal-inspector-title">
+      <button class="pal-inspector-back" type="button" data-pal-close aria-label="Back"><i class="bi bi-arrow-left"></i> Back</button>
       <button class="pal-inspector-close" type="button" data-pal-close aria-label="Close Pal inspection"><i class="bi bi-x-lg"></i></button>
       <header class="pal-inspector-header">
         <div class="pal-level-badge"><small>LEVEL</small><strong data-pal-level>—</strong></div>
@@ -242,6 +242,6 @@
     <small>UPDATED <b data-field="updated">—</b></small>
   </footer>
 
-  <script src="concept.js?v=25"></script>
+  <script src="concept.js?v=26"></script>
 </body>
 </html>
