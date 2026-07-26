@@ -74,6 +74,34 @@ function bindTap(el, onTap) {
   });
   el.addEventListener("pointercancel", () => { origin = null; });
 }
+
+// TEMPORARY diagnostic instrumentation for the mobile Pal-card tap bug.
+// Shows a visible on-screen log (not console-only) so it can be read and
+// reported back without any remote-debugging setup. Remove once the actual
+// failure point is identified.
+function debugToast(message) {
+  let toast = document.getElementById("debug-tap-toast");
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.id = "debug-tap-toast";
+    toast.style.cssText = "position:fixed;top:0;left:0;right:0;z-index:99999;background:#ffe600;color:#000;font:12px/1.4 monospace;padding:10px;white-space:pre-wrap;max-height:60vh;overflow:auto;box-shadow:0 4px 12px #0008";
+    document.body.appendChild(toast);
+  }
+  const line = document.createElement("div");
+  line.style.cssText = "border-top:1px solid #0003;padding-top:6px;margin-top:6px";
+  line.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+  toast.append(line);
+}
+
+function debugOpenPal(pal, source) {
+  debugToast(`${source}: tap registered for ${pal && (pal.nickname || pal.species) || "?"}`);
+  try {
+    openPalInspector(pal);
+    debugToast(`${source}: openPalInspector() finished, inspector.hidden=${$("#pal-inspector")?.hidden}`);
+  } catch (error) {
+    debugToast(`${source}: ERROR — ${error && error.message}\n${error && error.stack || ""}`);
+  }
+}
 const finite = value => Number.isFinite(Number(value)) ? Number(value) : 0;
 const tidy = value => {
   const parsed = finite(value);
@@ -272,8 +300,11 @@ function appendParty(host, pals, emptyCopy = "No companion has been observed in 
       card.addEventListener("mouseleave", scheduleInspectorClose);
       card.addEventListener("focus", showDesktopPreview);
       card.addEventListener("blur", scheduleInspectorClose);
+      card.addEventListener("pointerdown", event => {
+        if (event.pointerType !== "mouse") debugToast(`raw pointerdown seen (type=${event.pointerType}, desktopQuery=${inspectorDesktopQuery.matches})`);
+      });
       bindTap(card, () => {
-        if (!inspectorDesktopQuery.matches) openPalInspector(pal);
+        if (!inspectorDesktopQuery.matches) debugOpenPal(pal, "bindTap");
       });
       card.addEventListener("click", event => {
         if (inspectorDesktopQuery.matches) {
@@ -281,7 +312,7 @@ function appendParty(host, pals, emptyCopy = "No companion has been observed in 
           showDesktopPreview();
           return;
         }
-        openPalInspector(pal);
+        debugOpenPal(pal, "click");
       });
       if (!hasRichProfile) {
         card.title = "Detailed profile pending the next showcase refresh";
