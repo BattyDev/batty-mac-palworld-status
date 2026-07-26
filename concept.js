@@ -1106,9 +1106,16 @@ function renderBossRadar(data) {
   for (const boss of bosses) {
     const key = String(boss.key || boss.name || "boss");
     const status = boss.status === "down" ? "down" : "alive";
+    const bossName = boss.name || "Unknown Alpha";
 
-    const card = document.createElement("button");
-    card.type = "button";
+    // We don't have (and shouldn't try to rebuild) real per-species spawn
+    // location data ourselves, so "where to find it" links out to the
+    // Palworld Fandom wiki's page for that Pal, which has habitat/wild
+    // spawn info already.
+    const card = document.createElement("a");
+    card.href = `https://palworld.fandom.com/wiki/${encodeURIComponent(bossName.trim())}`;
+    card.target = "_blank";
+    card.rel = "noopener noreferrer";
     card.className = `boss-card status-${status}`;
     card.dataset.bossKey = key;
     const icon = document.createElement("span");
@@ -1117,7 +1124,11 @@ function renderBossRadar(data) {
     const copy = document.createElement("span");
     copy.className = "boss-card-copy";
     const name = document.createElement("strong");
-    name.textContent = boss.name || "Unknown Alpha";
+    name.textContent = bossName;
+    const linkHint = document.createElement("i");
+    linkHint.className = "bi bi-box-arrow-up-right boss-card-link-hint";
+    linkHint.setAttribute("aria-hidden", "true");
+    name.append(linkHint);
     const meta = document.createElement("small");
     meta.textContent = `${boss.level ? `Lv ${boss.level} · ` : ""}${bossStatusCopy(boss)}`;
     copy.append(name, meta);
