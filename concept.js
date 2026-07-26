@@ -109,7 +109,9 @@ function applyGamerpic(el, name) {
   if (!url) return;
   const img = new Image();
   img.alt = "";
-  img.loading = "lazy";
+  // Not lazy: this image is never attached to the DOM until it has already
+  // loaded, and loading="lazy" depends on viewport-intersection, which is
+  // meaningless (and breaks the load unpredictably) for a detached node.
   img.decoding = "async";
   img.onload = () => {
     el.textContent = "";
@@ -1010,6 +1012,32 @@ function bossStatusCopy(boss) {
   return boss.last_seen_at ? `Last seen ${seenAgo(boss.last_seen_at)} ago` : "Waiting for first sighting";
 }
 
+// Same confirm-load-before-swap pattern as the gamerpic avatars: the status
+// glyph shows immediately, and only gets replaced with the Pal portrait (plus
+// the glyph demoted to a small corner badge) once the image is confirmed to
+// load, so a bad/missing portrait never leaves a broken image on the radar.
+function applyBossFace(container, boss, glyphClass) {
+  container.replaceChildren();
+  const icon = document.createElement("i");
+  icon.className = `bi ${glyphClass}`;
+  container.append(icon);
+  const portraitUrl = portraitForPal({species: boss.name});
+  if (!portraitUrl) return;
+  const img = new Image();
+  img.alt = "";
+  // See applyGamerpic: no loading="lazy" here either, same reason.
+  img.decoding = "async";
+  img.onload = () => {
+    const face = document.createElement("span");
+    face.className = "boss-face";
+    const badge = document.createElement("i");
+    badge.className = `boss-status-badge bi ${glyphClass}`;
+    face.append(img, badge);
+    container.replaceChildren(face);
+  };
+  img.src = portraitUrl;
+}
+
 function renderBossRadar(data) {
   const tracker = data.boss_tracker || {};
   const bosses = Array.isArray(tracker.bosses) ? tracker.bosses : [];
@@ -1059,9 +1087,7 @@ function renderBossRadar(data) {
     marker.style.top = `${100 - Math.max(2, Math.min(98, finite(boss.map_y)))}%`;
     marker.title = `${boss.name} · ${bossStatusCopy(boss)}`;
     marker.setAttribute("aria-label", marker.title);
-    const markerIcon = document.createElement("i");
-    markerIcon.className = status === "alive" ? "bi bi-crosshair" : status === "down" ? "bi bi-hourglass-split" : "bi bi-question-lg";
-    marker.append(markerIcon);
+    applyBossFace(marker, boss, status === "alive" ? "bi-crosshair" : status === "down" ? "bi-hourglass-split" : "bi-question-lg");
     marker.addEventListener("click", () => selectBoss(key));
     markers.append(marker);
 
@@ -1071,9 +1097,7 @@ function renderBossRadar(data) {
     card.dataset.bossKey = key;
     const icon = document.createElement("span");
     icon.className = "boss-state-icon";
-    const iconGlyph = document.createElement("i");
-    iconGlyph.className = status === "alive" ? "bi bi-lightning-charge-fill" : status === "down" ? "bi bi-hourglass-split" : "bi bi-eye-slash-fill";
-    icon.append(iconGlyph);
+    applyBossFace(icon, boss, status === "alive" ? "bi-lightning-charge-fill" : status === "down" ? "bi-hourglass-split" : "bi-eye-slash-fill");
     const copy = document.createElement("span");
     copy.className = "boss-card-copy";
     const name = document.createElement("strong");
