@@ -169,27 +169,24 @@ function appendParty(host, pals, emptyCopy = "No companion has been observed in 
       if (pal.stars != null) meta.append(createStarRating(pal.stars, true));
       copy.append(title, subline, meta);
       card.append(portrait, copy);
-      if (hasRichProfile) {
-        const showDesktopPreview = () => {
-          if (!inspectorDesktopQuery.matches) return;
-          cancelInspectorClose();
-          openPalInspector(pal, card);
-        };
-        card.addEventListener("mouseenter", showDesktopPreview);
-        card.addEventListener("mouseleave", scheduleInspectorClose);
-        card.addEventListener("focus", showDesktopPreview);
-        card.addEventListener("blur", scheduleInspectorClose);
-        card.addEventListener("click", event => {
-          if (inspectorDesktopQuery.matches) {
-            event.preventDefault();
-            showDesktopPreview();
-            return;
-          }
-          openPalInspector(pal);
-        });
-      } else {
-        card.tabIndex = -1;
-        card.setAttribute("aria-disabled", "true");
+      const showDesktopPreview = () => {
+        if (!inspectorDesktopQuery.matches) return;
+        cancelInspectorClose();
+        openPalInspector(pal, card);
+      };
+      card.addEventListener("mouseenter", showDesktopPreview);
+      card.addEventListener("mouseleave", scheduleInspectorClose);
+      card.addEventListener("focus", showDesktopPreview);
+      card.addEventListener("blur", scheduleInspectorClose);
+      card.addEventListener("click", event => {
+        if (inspectorDesktopQuery.matches) {
+          event.preventDefault();
+          showDesktopPreview();
+          return;
+        }
+        openPalInspector(pal);
+      });
+      if (!hasRichProfile) {
         card.title = "Detailed profile pending the next showcase refresh";
       }
       chips.append(card);
@@ -399,6 +396,7 @@ function openPalInspector(pal, anchor = null) {
   inspectorAnchor = popover ? anchor : null;
   inspector.classList.toggle("is-popover", popover);
   inspector.classList.toggle("is-mobile-dialog", !popover);
+  inspector.classList.toggle("is-limited-profile", !pal.partner_skill);
   inspector.querySelector(".pal-inspector-panel")?.setAttribute("aria-modal", popover ? "false" : "true");
   activeInspectorPal = pal;
   inspectorMaxed = false;
@@ -526,7 +524,7 @@ function closePalInspector() {
   inspector.hidden = true;
   activeInspectorPal = null;
   inspectorAnchor = null;
-  inspector.classList.remove("is-popover", "is-mobile-dialog");
+  inspector.classList.remove("is-popover", "is-mobile-dialog", "is-limited-profile");
   inspector.style.removeProperty("--inspector-left");
   inspector.style.removeProperty("--inspector-top");
   document.body.classList.remove("has-pal-inspector");

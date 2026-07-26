@@ -365,6 +365,11 @@ body.has-pal-inspector{overflow:hidden}
 .pal-inspector.is-popover .pal-inspector-left{grid-row:1}
 .pal-inspector.is-popover .pal-inspector-right{grid-row:2}
 .pal-inspector.is-popover .pal-inspector-controls{display:none}
+.pal-inspector.is-limited-profile .pal-inspector-left,.pal-inspector.is-limited-profile .pal-inspector-right{display:none}
+.pal-inspector.is-limited-profile .pal-inspector-layout{display:block}
+.pal-inspector.is-limited-profile .pal-inspector-center{display:flex;min-height:190px}
+.pal-inspector.is-limited-profile .pal-stars,.pal-inspector.is-limited-profile .maxed-toggle{display:none}
+.pal-inspector.is-limited-profile .pal-inspector-controls span:not(:last-child){display:none}
 @media(max-width:1200px){
   .pal-party-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
 }
@@ -385,4 +390,29 @@ body.has-pal-inspector{overflow:hidden}
 }
 @media(max-width:430px){
   .pal-party-grid{grid-template-columns:1fr}
+}
+
+/* Match the compact Guild Activity language on the mobile Players view. */
+@media(max-width:660px){
+  .party-shelf{padding:14px 8px}
+  .people-columns{gap:10px}
+  .people-columns>section{min-height:0;padding:8px;background:#06141bd9;border:1px solid #ffffff12;border-top:4px solid var(--green)}
+  .people-columns>section.offline-section{border-top-color:#77868d}
+  .people-columns h3{margin:3px 3px 10px;padding-bottom:8px;border-bottom:3px solid #526973;font-size:.88rem}
+  .party-list,.recent-list{gap:9px}
+  .party-list li.player-card,.recent-list li.offline-player-card{padding:10px;background:linear-gradient(145deg,#102a34,#091c24);border:1px solid #ffffff12;border-left:4px solid #677980}
+  .party-list li.player-card{grid-template-columns:38px minmax(0,1fr);gap:9px;border-left-color:var(--green)}
+  .party-list li>.player-avatar{width:38px;height:38px;font-size:.8rem}
+  .player-card-heading{min-height:38px;align-items:start;justify-content:center;flex-direction:column;gap:2px}
+  .player-card-heading strong{font-size:.82rem}
+  .player-card-heading>span{font-size:.55rem;text-align:left}
+  .player-stats{grid-template-columns:1fr 1fr;gap:5px;margin-top:9px}
+  .player-stats div{padding:7px 8px;border-top-width:2px}
+  .player-stats dt{font-size:.54rem}
+  .player-stats dd{font-size:.68rem}
+  .player-card .party-sightings,.offline-player-card .party-sightings{margin-top:10px}
+  .player-card .pal-party-grid,.offline-player-card .pal-party-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+  .offline-player-card .player-card-heading{min-height:0}
+  .offline-player-meta{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:8px}
+  .offline-player-meta span{padding:6px 7px;background:#07151b;font-size:.55rem}
 }
