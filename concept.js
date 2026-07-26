@@ -50,6 +50,30 @@ const elementIcons = {
 
 const $ = selector => document.querySelector(selector);
 const all = selector => [...document.querySelectorAll(selector)];
+
+// Native "click" synthesis from touch was reported unreliable on both iOS
+// Safari and Android Chrome for opening the Pal inspector, so touch taps are
+// detected manually here instead of trusting the browser to turn a touch
+// gesture into a click. Mouse input is left alone (handled by the existing
+// click listener) since this only reacts to pen/touch pointer types.
+function bindTap(el, onTap) {
+  const MOVE_THRESHOLD = 12;
+  const TIME_THRESHOLD = 600;
+  let origin = null;
+  el.addEventListener("pointerdown", event => {
+    if (event.pointerType === "mouse") return;
+    origin = {x: event.clientX, y: event.clientY, time: Date.now()};
+  });
+  el.addEventListener("pointerup", event => {
+    if (!origin || event.pointerType === "mouse") { origin = null; return; }
+    const dx = Math.abs(event.clientX - origin.x);
+    const dy = Math.abs(event.clientY - origin.y);
+    const dt = Date.now() - origin.time;
+    origin = null;
+    if (dx <= MOVE_THRESHOLD && dy <= MOVE_THRESHOLD && dt <= TIME_THRESHOLD) onTap(event);
+  });
+  el.addEventListener("pointercancel", () => { origin = null; });
+}
 const finite = value => Number.isFinite(Number(value)) ? Number(value) : 0;
 const tidy = value => {
   const parsed = finite(value);
@@ -248,6 +272,9 @@ function appendParty(host, pals, emptyCopy = "No companion has been observed in 
       card.addEventListener("mouseleave", scheduleInspectorClose);
       card.addEventListener("focus", showDesktopPreview);
       card.addEventListener("blur", scheduleInspectorClose);
+      bindTap(card, () => {
+        if (!inspectorDesktopQuery.matches) openPalInspector(pal);
+      });
       card.addEventListener("click", event => {
         if (inspectorDesktopQuery.matches) {
           event.preventDefault();
