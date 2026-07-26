@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#07151c">
   <title>Batty Mac · Palworld Server Dashboard</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="concept-launcher.css?v=26">
+  <link rel="stylesheet" href="concept-launcher.css?v=27">
 </head>
 <body>
   <div class="wallpaper" aria-hidden="true"></div>
@@ -107,91 +107,20 @@
       </header>
       <p class="screen-intro">Bosses appear when somebody loads their region. A confirmed disappearance starts the timer; an unvisited region stays honestly marked as not observed.</p>
       <div class="boss-layout">
-        <section class="boss-map-shell">
-          <div class="boss-map-head">
-            <div><small>PALPAGOS FIELD MAP</small><strong data-boss-coverage>Waiting for sightings</strong></div>
-            <div class="boss-map-legend">
+        <div class="boss-roster">
+          <div class="boss-roster-head">
+            <div><small>PALPAGOS FIELD REPORT</small><strong data-boss-coverage>Waiting for sightings</strong></div>
+            <div class="boss-legend">
               <span><i class="alive"></i>Alive</span>
               <span><i class="down"></i>Respawning</span>
               <span><i class="unknown"></i>Not observed</span>
             </div>
           </div>
-          <div class="boss-map" id="boss-map" role="img" aria-label="Privacy-safe map of observed world bosses">
-            <div class="boss-map-swipe-hint" aria-hidden="true"><i class="bi bi-arrow-left-right"></i> Swipe to explore</div>
-            <div class="boss-map-track">
-              <svg class="island-map" viewBox="0 0 1000 700" aria-hidden="true">
-                <defs>
-                  <linearGradient id="biome-snow" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0" stop-color="#e7f3f6"/>
-                    <stop offset="1" stop-color="#a9c9d6"/>
-                  </linearGradient>
-                  <linearGradient id="biome-desert" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0" stop-color="#e8c48a"/>
-                    <stop offset="1" stop-color="#c99a5c"/>
-                  </linearGradient>
-                  <linearGradient id="biome-grass" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0" stop-color="#4f9165"/>
-                    <stop offset="1" stop-color="#265c42"/>
-                  </linearGradient>
-                  <linearGradient id="biome-volcano" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0" stop-color="#a2483f"/>
-                    <stop offset="1" stop-color="#5c2320"/>
-                  </linearGradient>
-                  <linearGradient id="biome-isle" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0" stop-color="#7fd8cf"/>
-                    <stop offset="1" stop-color="#2f8f88"/>
-                  </linearGradient>
-                  <filter id="island-shadow" x="-40%" y="-40%" width="180%" height="180%"><feDropShadow dx="0" dy="10" stdDeviation="12" flood-opacity=".45"/></filter>
-                </defs>
-
-                <g filter="url(#island-shadow)">
-                  <!-- Snow region -->
-                  <path fill="url(#biome-snow)" stroke="#dff4f8" stroke-opacity=".5" stroke-width="4" d="M215 70c60-38 150-30 190 20 34 43 8 95-30 128-55 47-150 60-215 20-52-32-58-100 5-140 16-10 33-19 50-28Z"/>
-                  <path fill="none" stroke="#5e7f8c" stroke-opacity=".55" stroke-width="3" d="M250 95l40 30-15 45M330 90l-10 55"/>
-
-                  <!-- Desert / sakura region -->
-                  <path fill="url(#biome-desert)" stroke="#f6ddb0" stroke-opacity=".5" stroke-width="4" d="M560 60c70-30 165-8 200 45 28 43 2 92-45 112-70 30-170 18-215-30-38-40-25-98 25-118 12-4 23-7 35-9Z"/>
-                  <circle cx="705" cy="105" r="7" fill="#f2a7c9" fill-opacity=".8"/>
-                  <circle cx="730" cy="130" r="4" fill="#f2a7c9" fill-opacity=".6"/>
-
-                  <!-- Main grass/forest continent -->
-                  <path fill="url(#biome-grass)" stroke="#8fe6b8" stroke-opacity=".4" stroke-width="4" d="M330 230c50-45 140-55 210-25 45 20 55 55 105 65 70 15 120 60 100 120-25 72-140 105-250 90-70-10-115-45-170-60-80-22-115-90-75-150 25-38 50-28 80-40Z"/>
-                  <path fill="none" stroke="#1e4530" stroke-opacity=".5" stroke-width="3" d="M400 280c40 20 70 10 110 30s55 45 100 40M370 400c35 15 80 5 120 25"/>
-
-                  <!-- Volcano region -->
-                  <path fill="url(#biome-volcano)" stroke="#f2a58e" stroke-opacity=".4" stroke-width="4" d="M195 415c55-58 150-55 200 5 42 50 15 112-40 145-80 48-215 55-280 0-56-47-20-118 60-145 20-7 40-4 60-5Z"/>
-                  <path fill="#e0693f" d="M275 445l18 40h-36z"/>
-                  <circle cx="275" cy="440" r="6" fill="#ffcf6b"/>
-
-                  <!-- Scattered isles -->
-                  <path fill="url(#biome-isle)" stroke="#bff2ea" stroke-opacity=".4" stroke-width="3" d="M735 400c35-25 90-15 105 20 13 30-8 62-45 72-45 12-95-5-105-38-8-28 15-45 45-54Z"/>
-                  <path fill="url(#biome-isle)" stroke="#bff2ea" stroke-opacity=".4" stroke-width="3" d="M840 250c22-16 55-9 63 13 8 20-6 39-28 45-27 8-57-3-63-24-5-17 9-27 28-34Z"/>
-                  <path fill="url(#biome-isle)" stroke="#bff2ea" stroke-opacity=".3" stroke-width="2" d="M120 560c15-11 38-6 43 9 5 14-4 27-19 31-19 6-39-2-43-16-4-12 6-19 19-24Z"/>
-                </g>
-
-                <g fill="none" stroke="#8be2d0" stroke-opacity=".14" stroke-width="2">
-                  <path d="M20 150c190 120 343 83 487 219s289 110 467 39"/>
-                  <path d="M89 635c128-182 249-193 397-309s286-135 431-244"/>
-                </g>
-              </svg>
-              <div id="boss-markers" class="boss-markers"></div>
-              <span class="boss-map-snap" style="left:16.666%"></span>
-              <span class="boss-map-snap" style="left:50%"></span>
-              <span class="boss-map-snap" style="left:83.333%"></span>
-            </div>
-            <div class="boss-map-empty" id="boss-map-empty">
-              <i class="bi bi-binoculars-fill"></i>
-              <strong>No alpha sightings yet</strong>
-              <span>Visit a field boss once and the radar will learn it.</span>
-            </div>
-          </div>
-        </section>
-        <aside class="boss-roster">
           <div class="boss-summary" id="boss-summary"></div>
           <div class="boss-list" id="boss-list"></div>
-        </aside>
+        </div>
       </div>
-      <p class="boss-privacy"><i class="bi bi-shield-lock-fill"></i> Exact coordinates and player positions stay on batty-mac. The public map receives normalized boss markers only.</p>
+      <p class="boss-privacy"><i class="bi bi-shield-lock-fill"></i> Exact coordinates and player positions stay on batty-mac. The public report receives normalized boss status only.</p>
     </section>
 
     <section class="view-pane content-shelf content-screen" id="world" data-view="world" hidden>
@@ -313,6 +242,6 @@
     <small>UPDATED <b data-field="updated">—</b></small>
   </footer>
 
-  <script src="concept.js?v=23"></script>
+  <script src="concept.js?v=24"></script>
 </body>
 </html>

@@ -1041,17 +1041,13 @@ function applyBossFace(container, boss, glyphClass) {
 function renderBossRadar(data) {
   const tracker = data.boss_tracker || {};
   const bosses = Array.isArray(tracker.bosses) ? tracker.bosses : [];
-  const markers = $("#boss-markers");
   const list = $("#boss-list");
   const summary = $("#boss-summary");
-  const empty = $("#boss-map-empty");
   const coverage = $("[data-boss-coverage]");
-  if (!markers || !list || !summary || !empty || !coverage) return;
+  if (!list || !summary || !coverage) return;
 
-  markers.replaceChildren();
   list.replaceChildren();
   summary.replaceChildren();
-  empty.hidden = bosses.length > 0;
   const trackerFresh = tracker.updated_at && Date.now() - Date.parse(tracker.updated_at) < 7 * 60 * 1000;
   for (const node of all("[data-boss-signal]")) node.classList.toggle("is-live", Boolean(trackerFresh));
   coverage.textContent = bosses.length
@@ -1079,17 +1075,6 @@ function renderBossRadar(data) {
   for (const boss of bosses) {
     const key = String(boss.key || boss.name || "boss");
     const status = ["alive", "down", "unknown"].includes(boss.status) ? boss.status : "unknown";
-    const marker = document.createElement("button");
-    marker.type = "button";
-    marker.className = `boss-marker status-${status}`;
-    marker.dataset.bossKey = key;
-    marker.style.left = `${Math.max(2, Math.min(98, finite(boss.map_x)))}%`;
-    marker.style.top = `${100 - Math.max(2, Math.min(98, finite(boss.map_y)))}%`;
-    marker.title = `${boss.name} · ${bossStatusCopy(boss)}`;
-    marker.setAttribute("aria-label", marker.title);
-    applyBossFace(marker, boss, status === "alive" ? "bi-crosshair" : status === "down" ? "bi-hourglass-split" : "bi-question-lg");
-    marker.addEventListener("click", () => selectBoss(key));
-    markers.append(marker);
 
     const card = document.createElement("button");
     card.type = "button";
