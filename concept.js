@@ -131,6 +131,7 @@ function appendParty(host, pals, emptyCopy = "No companion has been observed in 
       const portrait = document.createElement("span");
       portrait.className = "pal-party-portrait";
       const image = document.createElement("img");
+      image.className = "pal-party-image";
       image.alt = "";
       const portraitUrl = portraitForPal(pal);
       if (portraitUrl) {
@@ -138,6 +139,9 @@ function appendParty(host, pals, emptyCopy = "No companion has been observed in 
         image.addEventListener("error", () => image.remove());
         portrait.append(image);
       }
+      const elementOverlay = createElementIcons(pal.elements, true);
+      elementOverlay.classList.add("is-overlay");
+      portrait.append(elementOverlay);
       const copy = document.createElement("span");
       copy.className = "pal-party-copy";
       const title = document.createElement("strong");
@@ -151,7 +155,6 @@ function appendParty(host, pals, emptyCopy = "No companion has been observed in 
         species.textContent = speciesName;
         subline.append(species);
       }
-      subline.append(createElementIcons(pal.elements, true));
       const meta = document.createElement("span");
       meta.className = "pal-party-meta";
       const level = document.createElement("b");
