@@ -26,6 +26,11 @@ const playerIdentities = [
     character: "TheNumbersMason",
     profile: "VapeNationMason",
     aliases: ["TheNumbersMason", "VapeNationMason"]
+  },
+  {
+    character: "Owlz",
+    profile: "OwlzBandit",
+    aliases: ["Owlz", "OwlzBandit"]
   }
 ];
 
