@@ -11,6 +11,13 @@ let inspectorMaxed = false;
 let inspectorAnchor = null;
 let inspectorCloseTimer = null;
 const inspectorDesktopQuery = window.matchMedia("(hover: hover) and (pointer: fine) and (min-width: 901px)");
+const playerIdentities = [
+  {
+    character: "Batty",
+    profile: "Batman JJK",
+    aliases: ["Batty", "Batty JJK", "Batman JJK"]
+  }
+];
 
 const elementIcons = {
   neutral: "assets/elements/neutral.webp",
@@ -48,6 +55,23 @@ const seenAgo = value => {
   const hours = Math.floor(minutes / 60);
   if (hours < 24) return `${hours}h`;
   return `${Math.floor(hours / 24)}d`;
+};
+const playerNameKey = value => String(value || "").trim().toLocaleLowerCase();
+const playerIdentity = value => {
+  const key = playerNameKey(value);
+  return playerIdentities.find(identity =>
+    identity.aliases.some(alias => playerNameKey(alias) === key)
+  );
+};
+const canonicalPlayerKey = value => {
+  const identity = playerIdentity(value);
+  return playerNameKey(identity?.character || value);
+};
+const playerSecondaryLabel = (name, guild) => {
+  const identity = playerIdentity(name);
+  return [guild || "No guild observed", identity?.profile ? `Xbox · ${identity.profile}` : null]
+    .filter(Boolean)
+    .join(" · ");
 };
 
 function fill(name, value) {
@@ -548,7 +572,7 @@ function renderOnline(data) {
     const name = document.createElement("strong");
     name.textContent = player.name || "Unknown player";
     const guild = document.createElement("span");
-    guild.textContent = player.guild || "No guild observed";
+    guild.textContent = playerSecondaryLabel(player.name, player.guild);
     heading.append(name, guild);
     const stats = document.createElement("dl");
     stats.className = "player-stats";
@@ -584,10 +608,18 @@ function renderRecent(data) {
   const host = $("#concept-recent");
   if (!host) return;
   host.replaceChildren();
-  const onlineNames = new Set(Array.isArray(data.player_names) ? data.player_names : []);
+  const onlineNames = new Set(
+    (Array.isArray(data.player_names) ? data.player_names : []).map(canonicalPlayerKey)
+  );
   const source = Array.isArray(data.known_players) ? data.known_players : data.recent_players;
+  const displayedIdentities = new Set();
   const recent = Array.isArray(source)
-    ? source.filter(player => !player.online && !onlineNames.has(player.name)).slice(0, 20)
+    ? source.filter(player => {
+      const identity = canonicalPlayerKey(player.name);
+      if (player.online || onlineNames.has(identity) || displayedIdentities.has(identity)) return false;
+      displayedIdentities.add(identity);
+      return true;
+    }).slice(0, 20)
     : [];
   for (const player of recent) {
     const item = document.createElement("li");
@@ -599,7 +631,7 @@ function renderRecent(data) {
     const name = document.createElement("strong");
     name.textContent = player.name;
     const guild = document.createElement("span");
-    guild.textContent = player.guild || "Guild not observed";
+    guild.textContent = playerSecondaryLabel(player.name, player.guild || "Guild not observed");
     heading.append(name, guild);
     const details = document.createElement("div");
     details.className = "offline-player-meta";
