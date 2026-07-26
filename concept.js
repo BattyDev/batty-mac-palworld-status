@@ -120,17 +120,20 @@ function renderHighlights(data) {
 }
 
 function appendParty(host, pals, emptyCopy = "No companion has been observed in the latest loaded snapshot.") {
+  const party = Array.isArray(pals) ? pals.slice(0, 5) : [];
+  const hasRichProfiles = party.some(pal => pal?.partner_skill);
   const wrapper = document.createElement("div");
   wrapper.className = "party-sightings";
   const label = document.createElement("small");
-  label.textContent = Array.isArray(pals) && pals.some(pal => pal?.partner_skill) ? "Current party" : "Party sightings";
+  label.textContent = hasRichProfiles ? "Current party" : "Party sightings";
   const chips = document.createElement("div");
-  chips.className = Array.isArray(pals) && pals.some(pal => pal?.partner_skill) ? "pal-party-grid" : "pal-chips";
-  for (const pal of Array.isArray(pals) ? pals.slice(0, 5) : []) {
-    if (pal?.partner_skill) {
+  chips.className = party.some(pal => pal && typeof pal === "object") ? "pal-party-grid" : "pal-chips";
+  for (const pal of party) {
+    if (pal && typeof pal === "object") {
+      const hasRichProfile = Boolean(pal.partner_skill);
       const card = document.createElement("button");
       card.type = "button";
-      card.className = "pal-party-card";
+      card.className = `pal-party-card${hasRichProfile ? "" : " is-summary-only"}`;
       const portrait = document.createElement("span");
       portrait.className = "pal-party-portrait";
       const image = document.createElement("img");
@@ -162,26 +165,33 @@ function appendParty(host, pals, emptyCopy = "No companion has been observed in 
       meta.className = "pal-party-meta";
       const level = document.createElement("b");
       level.textContent = `Lv ${tidy(pal.level)}`;
-      meta.append(level, createStarRating(pal.stars, true));
+      meta.append(level);
+      if (pal.stars != null) meta.append(createStarRating(pal.stars, true));
       copy.append(title, subline, meta);
       card.append(portrait, copy);
-      const showDesktopPreview = () => {
-        if (!inspectorDesktopQuery.matches) return;
-        cancelInspectorClose();
-        openPalInspector(pal, card);
-      };
-      card.addEventListener("mouseenter", showDesktopPreview);
-      card.addEventListener("mouseleave", scheduleInspectorClose);
-      card.addEventListener("focus", showDesktopPreview);
-      card.addEventListener("blur", scheduleInspectorClose);
-      card.addEventListener("click", event => {
-        if (inspectorDesktopQuery.matches) {
-          event.preventDefault();
-          showDesktopPreview();
-          return;
-        }
-        openPalInspector(pal);
-      });
+      if (hasRichProfile) {
+        const showDesktopPreview = () => {
+          if (!inspectorDesktopQuery.matches) return;
+          cancelInspectorClose();
+          openPalInspector(pal, card);
+        };
+        card.addEventListener("mouseenter", showDesktopPreview);
+        card.addEventListener("mouseleave", scheduleInspectorClose);
+        card.addEventListener("focus", showDesktopPreview);
+        card.addEventListener("blur", scheduleInspectorClose);
+        card.addEventListener("click", event => {
+          if (inspectorDesktopQuery.matches) {
+            event.preventDefault();
+            showDesktopPreview();
+            return;
+          }
+          openPalInspector(pal);
+        });
+      } else {
+        card.tabIndex = -1;
+        card.setAttribute("aria-disabled", "true");
+        card.title = "Detailed profile pending the next showcase refresh";
+      }
       chips.append(card);
       continue;
     }
@@ -738,8 +748,20 @@ function renderGuilds(data) {
     const article = document.createElement("article");
     article.className = "guild-detail-card";
     const header = document.createElement("header");
+    const identity = document.createElement("div");
+    identity.className = "guild-identity";
+    const crest = document.createElement("span");
+    crest.className = "guild-crest";
+    crest.innerHTML = `<i class="bi bi-shield-fill"></i>`;
+    const identityCopy = document.createElement("div");
+    const eyebrow = document.createElement("small");
+    eyebrow.textContent = "Guild profile";
     const name = document.createElement("h3");
     name.textContent = guild.name;
+    const identityNote = document.createElement("p");
+    identityNote.textContent = achievement.title;
+    identityCopy.append(eyebrow, name, identityNote);
+    identity.append(crest, identityCopy);
     const totals = document.createElement("div");
     totals.className = "guild-totals";
     for (const [value, label] of [
@@ -751,7 +773,7 @@ function renderGuilds(data) {
       metric.innerHTML = `<strong>${value}</strong><small>${label}</small>`;
       totals.append(metric);
     }
-    header.append(name, totals);
+    header.append(identity, totals);
 
     const overview = document.createElement("div");
     overview.className = "guild-overview";
@@ -779,18 +801,25 @@ function renderGuilds(data) {
       const memberCard = document.createElement("article");
       memberCard.className = `guild-member ${member.online ? "is-online" : ""}`;
       const memberHead = document.createElement("div");
+      memberHead.className = "guild-member-head";
+      const memberAvatar = document.createElement("span");
+      memberAvatar.className = "guild-member-avatar";
+      memberAvatar.textContent = (member.name || "?").slice(0, 1).toUpperCase();
+      const memberIdentity = document.createElement("div");
+      memberIdentity.className = "guild-member-identity";
       const memberName = document.createElement("strong");
       memberName.textContent = member.name || "Unknown member";
+      const level = document.createElement("small");
+      level.textContent = member.level == null ? "Level unknown" : `Level ${tidy(member.level)}`;
+      memberIdentity.append(memberName, level);
       const memberState = document.createElement("span");
       memberState.textContent = member.online
         ? "Online now"
         : member.last_seen
           ? `Seen ${seenAgo(member.last_seen)} ago`
           : "Previously observed";
-      memberHead.append(memberName, memberState);
-      const level = document.createElement("small");
-      level.textContent = member.level == null ? "Level unknown" : `Level ${tidy(member.level)}`;
-      memberCard.append(memberHead, level);
+      memberHead.append(memberAvatar, memberIdentity, memberState);
+      memberCard.append(memberHead);
       appendParty(memberCard, showcaseParty(data, member.name, member.party_sightings), "No recent companion sighting.");
       memberList.append(memberCard);
     }
@@ -811,15 +840,33 @@ function renderGuilds(data) {
       const details = document.createElement("details");
       details.className = "guild-base";
       const summary = document.createElement("summary");
+      const baseIcon = document.createElement("i");
+      baseIcon.className = "bi bi-house-gear-fill";
+      baseIcon.setAttribute("aria-hidden", "true");
       const baseName = document.createElement("strong");
       baseName.textContent = base.label || "Base";
       const count = document.createElement("span");
       count.textContent = `${finite(base.worker_count)} working Pals`;
-      summary.append(baseName, count);
+      summary.append(baseIcon, baseName, count);
       const roster = document.createElement("div");
       roster.className = "worker-roster";
       for (const worker of Array.isArray(base.workers) ? base.workers : []) {
         const row = document.createElement("div");
+        row.className = "worker-card";
+        const portrait = document.createElement("span");
+        portrait.className = "worker-portrait";
+        const portraitUrl = portraitForPal(worker);
+        if (portraitUrl) {
+          const image = document.createElement("img");
+          image.src = portraitUrl;
+          image.alt = "";
+          image.addEventListener("error", () => image.remove());
+          portrait.append(image);
+        } else {
+          portrait.innerHTML = `<i class="bi bi-stars"></i>`;
+        }
+        const workerCopy = document.createElement("span");
+        workerCopy.className = "worker-copy";
         const workerName = document.createElement("strong");
         const species = worker.species || "Unknown Pal";
         workerName.textContent = worker.nickname ? `${worker.nickname} (${species})` : species;
@@ -830,7 +877,8 @@ function renderGuilds(data) {
           worker.action || null
         ].filter(Boolean);
         stats.textContent = parts.join(" · ") || "Details unavailable";
-        row.append(workerName, stats);
+        workerCopy.append(workerName, stats);
+        row.append(portrait, workerCopy);
         roster.append(row);
       }
       if (!roster.children.length) roster.textContent = "No workers were loaded near this Palbox in the latest snapshot.";

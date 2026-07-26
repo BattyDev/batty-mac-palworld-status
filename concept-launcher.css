@@ -186,6 +186,56 @@ body{padding-bottom:72px}
 .worker-roster span{text-align:right}
 .guild-empty{margin:0;padding:12px;color:#91a5ad;font-size:.58rem;line-height:1.45}
 
+/* Xbox-style guild hubs: compact roster cards and visual worker tiles. */
+.guild-grid{grid-template-columns:1fr;gap:18px}
+.guild-detail-card{overflow:hidden;padding:0;background:linear-gradient(145deg,#102832f2,#06141bf2);border:1px solid #64e7eb38;border-top:0;box-shadow:0 16px 42px #0007}
+.guild-detail-card>header{display:flex;align-items:stretch;justify-content:space-between;gap:20px;padding:18px;background:linear-gradient(100deg,#173944f5,#0b2029e8 62%,#17343ad1);border-bottom:1px solid #ffffff17}
+.guild-identity{display:flex;align-items:center;gap:14px;min-width:0}
+.guild-crest{display:grid;place-items:center;flex:0 0 62px;width:62px;height:62px;background:linear-gradient(145deg,#56e6eb,#138b9d);color:#07171d;font-size:1.55rem;box-shadow:0 0 0 3px #fff,0 0 0 6px #9bf00b}
+.guild-identity>div{min-width:0}
+.guild-identity small{color:var(--aqua);font:900 .58rem "Barlow Condensed";letter-spacing:.14em;text-transform:uppercase}
+.guild-detail-card h3{overflow:hidden;margin:2px 0 0;font:900 clamp(1.55rem,3vw,2.35rem)/.9 "Barlow Condensed";text-overflow:ellipsis;text-transform:uppercase;white-space:nowrap}
+.guild-identity p{margin:5px 0 0;color:#b9cbd0;font-size:.65rem}
+.guild-totals{display:grid;grid-template-columns:repeat(3,minmax(92px,1fr));gap:7px}
+.guild-totals>span{display:flex;flex-direction:column;justify-content:center;min-width:92px;padding:10px 12px;background:#061219b8;border:0;border-bottom:3px solid #64e8eb}
+.guild-totals strong{font:900 1.75rem/.9 "Barlow Condensed"}
+.guild-totals small{margin-top:5px;color:#aebdc3;font-size:.5rem;font-weight:900;letter-spacing:.04em;text-transform:uppercase}
+.guild-overview{display:flex;align-items:center;gap:12px;margin:0;padding:12px 18px;background:linear-gradient(90deg,#382761,#152633 58%,#0c1920);border-bottom:1px solid #ffffff12}
+.guild-overview>b{display:grid;place-items:center;flex:0 0 38px;width:38px;height:38px;border:2px solid #e8c157;border-radius:50%;color:#ffd86b;background:#191620}
+.guild-overview>span{display:flex;flex-direction:column}
+.guild-overview strong{font-size:.76rem}
+.guild-overview small{margin-top:3px;color:#b9c8cd;font-size:.59rem;line-height:1.45}
+.guild-detail-columns{display:grid;grid-template-columns:minmax(360px,.95fr) minmax(470px,1.05fr);gap:10px;padding:10px}
+.guild-detail-columns>section{min-width:0;padding:13px;background:#06141bbf;border:1px solid #ffffff10}
+.guild-detail-columns h4{display:flex;align-items:center;gap:8px;margin:0 0 11px;padding-bottom:9px;border-bottom:3px solid #526973;font:900 .88rem "Barlow Condensed";letter-spacing:.07em;text-transform:uppercase}
+.guild-detail-columns h4 i{color:var(--aqua)}
+.guild-member-list,.guild-base-list{display:grid;gap:9px}
+.guild-member{padding:10px;background:linear-gradient(145deg,#102a34,#091c24);border:1px solid #ffffff12;border-left:4px solid #677980;transition:border-color .16s ease,transform .16s ease}
+.guild-member:hover{transform:translateY(-2px);border-color:#69e6eb80}
+.guild-member.is-online{border-left-color:var(--green)}
+.guild-member-head{display:grid!important;grid-template-columns:38px minmax(0,1fr) auto;align-items:center!important;gap:9px!important}
+.guild-member-avatar{display:grid;place-items:center;width:38px;height:38px;border-radius:50%;background:linear-gradient(145deg,#72f1ed,#25a7b7);color:#06222a;font-size:.8rem;font-weight:900}
+.guild-member-identity{display:flex;flex-direction:column;min-width:0}
+.guild-member-identity strong{overflow:hidden;font-size:.75rem!important;text-overflow:ellipsis;white-space:nowrap}
+.guild-member-identity small{margin-top:2px;color:#c4d4d8;font-size:.55rem}
+.guild-member-head>span:last-child{padding:5px 7px;background:#07151b;color:#9cafb6!important;font-size:.5rem!important;font-weight:800;white-space:nowrap}
+.guild-member.is-online .guild-member-head>span:last-child{color:#caff72!important;box-shadow:inset 3px 0 var(--green)}
+.guild-member .party-sightings{margin-top:10px}
+.guild-member .pal-party-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.guild-base{overflow:hidden;background:linear-gradient(145deg,#102a34,#091c24);border:1px solid #ffffff12;border-left:4px solid #5edbe2}
+.guild-base summary{display:grid;grid-template-columns:30px minmax(0,1fr) auto auto;align-items:center;gap:9px;padding:10px 11px;cursor:pointer;list-style:none}
+.guild-base summary>i{display:grid;place-items:center;width:30px;height:30px;background:#173b46;color:var(--aqua)}
+.guild-base summary strong{font-size:.72rem}
+.guild-base summary>span{margin-left:auto;color:#aebec4;font-size:.55rem}
+.worker-roster{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:0 9px 9px;color:#9eb1b8;font-size:.57rem}
+.worker-card{display:grid!important;grid-template-columns:42px minmax(0,1fr)!important;align-items:center;gap:8px!important;min-width:0;padding:6px!important;border:1px solid #ffffff0e!important;background:#06171e!important}
+.worker-portrait{display:grid;place-items:center;width:42px;height:42px;overflow:hidden;background:radial-gradient(circle,#56e4e839,transparent 65%),#12303a;color:#65e9ee}
+.worker-portrait img{width:92%;height:92%;object-fit:contain;filter:drop-shadow(0 4px 4px #0008)}
+.worker-copy{display:flex;flex-direction:column;min-width:0}
+.worker-copy strong{overflow:hidden;color:#f3f8f9;font-size:.6rem;text-overflow:ellipsis;white-space:nowrap}
+.worker-copy>span{overflow:hidden;margin-top:3px;color:#9eb1b8;font-size:.52rem;text-overflow:ellipsis;white-space:nowrap;text-align:left}
+.guild-empty{margin:0;padding:12px;background:#0a1d25;color:#91a5ad;font-size:.6rem;line-height:1.5}
+
 @media(max-width:900px){
   .guild-detail-card>header{flex-direction:column}
   .guild-totals{justify-content:flex-start}
@@ -207,12 +257,27 @@ body{padding-bottom:72px}
   .guild-detail-columns>section{padding:10px}
   .worker-roster>div{grid-template-columns:1fr}
   .worker-roster span{text-align:left}
+  .guild-detail-card{padding:0}
+  .guild-detail-card>header{padding:14px}
+  .guild-crest{flex-basis:48px;width:48px;height:48px;font-size:1.15rem;box-shadow:0 0 0 2px #fff,0 0 0 4px #9bf00b}
+  .guild-totals{grid-template-columns:repeat(3,1fr)}
+  .guild-totals>span{min-width:0;padding:8px}
+  .guild-totals strong{font-size:1.35rem}
+  .guild-overview{padding:10px 14px}
+  .guild-detail-columns{padding:7px}
+  .guild-member-head{grid-template-columns:34px minmax(0,1fr)}
+  .guild-member-avatar{width:34px;height:34px}
+  .guild-member-head>span:last-child{grid-column:2;margin-top:2px;width:max-content}
+  .guild-member .pal-party-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .worker-roster{grid-template-columns:1fr}
 }
 
 /* Full party showcase and Pal inspection */
 .pal-party-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:10px}
 .pal-party-card{min-width:0;overflow:hidden;padding:0;border:1px solid #63e5eb62;background:linear-gradient(155deg,#173642,#0a1d25);color:#fff;text-align:left;cursor:pointer;transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease}
 .pal-party-card:hover,.pal-party-card:focus-visible{z-index:2;transform:translateY(-3px) scale(1.02);border-color:#76f3f7;outline:2px solid #fff;outline-offset:2px;box-shadow:0 10px 24px #0009,0 0 24px #55dce62c}
+.pal-party-card.is-summary-only{cursor:default}
+.pal-party-card.is-summary-only:hover{transform:none;border-color:#63e5eb62;outline:0;box-shadow:none}
 .pal-party-portrait{position:relative;display:grid;place-items:center;aspect-ratio:1.4/1;overflow:hidden;background:radial-gradient(circle at 50% 42%,#54e5e83d,transparent 56%),linear-gradient(145deg,#234d59,#0b2029)}
 .pal-party-portrait:after{content:"";position:absolute;inset:auto 0 0;height:35%;background:linear-gradient(transparent,#071219b8)}
 .pal-party-portrait>.pal-party-image{position:relative;z-index:1;width:88%;height:88%;object-fit:contain;filter:drop-shadow(0 8px 7px #0009)}
