@@ -274,7 +274,7 @@ body{padding-bottom:72px}
 
 /* Full party showcase and Pal inspection */
 .pal-party-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:10px}
-.pal-party-card{min-width:0;overflow:hidden;padding:0;border:1px solid #63e5eb62;background:linear-gradient(155deg,#173642,#0a1d25);color:#fff;text-align:left;cursor:pointer;transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease}
+.pal-party-card{min-width:0;overflow:hidden;padding:0;border:1px solid #63e5eb62;background:linear-gradient(155deg,#173642,#0a1d25);color:#fff;text-align:left;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:#76f3f733;transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease}
 .pal-party-card:hover,.pal-party-card:focus-visible{z-index:2;transform:translateY(-3px) scale(1.02);border-color:#76f3f7;outline:2px solid #fff;outline-offset:2px;box-shadow:0 10px 24px #0009,0 0 24px #55dce62c}
 .pal-party-card.is-summary-only{cursor:default}
 .pal-party-card.is-summary-only:hover{transform:none;border-color:#63e5eb62;outline:0;box-shadow:none}

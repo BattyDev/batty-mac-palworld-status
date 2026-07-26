@@ -1133,7 +1133,10 @@ palInspector?.addEventListener("focusout", () => {
 });
 
 window.addEventListener("resize", () => {
-  if (!$("#pal-inspector")?.hidden) closePalInspector();
+  const inspector = $("#pal-inspector");
+  if (!inspector?.hidden && inspector.classList.contains("is-popover")) {
+    closePalInspector();
+  }
 });
 window.addEventListener("scroll", () => {
   if (inspectorAnchor) positionPalInspector(inspectorAnchor);
