@@ -28,3 +28,16 @@ Interface and world-setting symbols use Bootstrap Icons 1.13.1:
 - Project: https://icons.getbootstrap.com/
 - License: MIT
 - Delivery: jsDelivr icon-font stylesheet
+
+The Boss Radar map background is a community-made map of the Palpagos
+Islands, used as the backdrop for privacy-safe, normalized boss markers only
+(no real player positions or coordinates are shown):
+
+- `palpagos-world-map.webp` — 2048×2048 world map
+  Source: Palworld Wiki (Fandom), "Palpagos Islands/Overview" article
+  https://palworld.fandom.com/wiki/Palpagos_Islands/Overview
+  File: https://static.wikia.nocookie.net/palworld/images/a/a7/Palpagos_Islands_World_Map.png
+
+This is a fan/community-made map, not an asset released by Pocketpair. It is
+used here for the same non-commercial, fan-run, unaffiliated community
+purpose as the rest of this page.
