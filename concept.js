@@ -89,6 +89,35 @@ const playerSecondaryLabel = (name, guild) => {
     .join(" · ");
 };
 
+const conceptDataBranchAsset = path => conceptLocal
+  ? path
+  : `https://raw.githubusercontent.com/${conceptOwner}/${conceptRepository}/data/${path}`;
+
+const gamerpicUrl = name => {
+  const identity = playerIdentity(name);
+  const slug = (identity?.character || name || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
+  return slug ? conceptDataBranchAsset(`assets/players/${slug}.png`) : null;
+};
+
+// Cached daily via OpenXBL by a private server-side job; only a resolved PNG
+// (never the API key or an XUID) ever reaches this checkout. The letter
+// stays as the fallback until (or unless) an image is confirmed to load.
+function applyGamerpic(el, name) {
+  if (!el) return;
+  el.textContent = (name || "?").slice(0, 1).toUpperCase();
+  const url = gamerpicUrl(name);
+  if (!url) return;
+  const img = new Image();
+  img.alt = "";
+  img.loading = "lazy";
+  img.decoding = "async";
+  img.onload = () => {
+    el.textContent = "";
+    el.append(img);
+  };
+  img.src = url;
+}
+
 function fill(name, value) {
   for (const node of all(`[data-field="${name}"]`)) node.textContent = value ?? "—";
 }
@@ -579,7 +608,7 @@ function renderOnline(data) {
     item.className = "player-card";
     const avatar = document.createElement("span");
     avatar.className = "player-avatar";
-    avatar.textContent = (player.name || "?").slice(0, 1).toUpperCase();
+    applyGamerpic(avatar, player.name);
     const body = document.createElement("div");
     body.className = "player-card-body";
     const heading = document.createElement("div");
@@ -849,7 +878,7 @@ function renderGuilds(data) {
       memberHead.className = "guild-member-head";
       const memberAvatar = document.createElement("span");
       memberAvatar.className = "guild-member-avatar";
-      memberAvatar.textContent = (member.name || "?").slice(0, 1).toUpperCase();
+      applyGamerpic(memberAvatar, member.name);
       const memberIdentity = document.createElement("div");
       memberIdentity.className = "guild-member-identity";
       const memberName = document.createElement("strong");
@@ -1114,6 +1143,8 @@ async function loadConcept() {
     for (const node of all("[data-status-dot]")) node.classList.remove("is-online");
   }
 }
+
+applyGamerpic($(".gamerpic"), "Batty");
 
 loadConcept();
 setInterval(loadConcept, 60000);
