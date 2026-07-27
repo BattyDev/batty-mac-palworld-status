@@ -1,5 +1,9 @@
-const conceptOwner = location.hostname.split(".")[0];
-const conceptRepository = location.pathname.split("/").filter(Boolean)[0] || `${conceptOwner}.github.io`;
+// Fixed, not derived from location.hostname/pathname: this only worked by
+// coincidence while the site was served from battydev.github.io. A custom
+// domain would make location.hostname something else entirely, silently
+// pointing the data fetch at the wrong GitHub repo.
+const conceptOwner = "BattyDev";
+const conceptRepository = "batty-mac-palworld-status";
 const conceptLocal = ["127.0.0.1", "localhost"].includes(location.hostname);
 const conceptStatusUrl = conceptLocal
   ? "status.json"
