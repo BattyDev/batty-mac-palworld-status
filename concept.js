@@ -123,6 +123,17 @@ const namesCollide = (guild, names) => {
   return Boolean(key) && (Array.isArray(names) ? names : [names])
     .some(name => playerNameKey(name) === key);
 };
+// The publisher hands untouched guilds a placeholder ordinal because their in
+// -game name is not distinguishing (see the Unnamed Guild note in the handoff).
+const placeholderGuildName = value => /^\s*unnamed guild\b/i.test(String(value || ""));
+// The published feed carries no founder/admin field, so the owner can only be
+// named when the guild has exactly one observed member -- then the member and
+// the owner are necessarily the same player. A placeholder guild with several
+// observed members (or none) keeps its ordinal rather than guessing.
+const guildFounder = guild => {
+  const members = guildMemberNames(guild).filter(Boolean);
+  return members.length === 1 ? members[0] : null;
+};
 // Resolved once per snapshot from the full roster, so the same guild reads
 // identically on a player card, the guild page and the achievement list --
 // a player card on its own only knows whether the guild matches that one
@@ -133,8 +144,10 @@ const rememberGuildLabels = data => {
   for (const guild of Array.isArray(data?.guilds) ? data.guilds : []) {
     const key = playerNameKey(guild?.name);
     if (!key || guildLabels.has(key)) continue;
-    const collides = namesCollide(guild.name, guildMemberNames(guild));
-    guildLabels.set(key, collides ? `${guild.name}'s guild` : guild.name);
+    const founder = placeholderGuildName(guild.name)
+      ? guildFounder(guild)
+      : namesCollide(guild.name, guildMemberNames(guild)) ? guild.name : null;
+    guildLabels.set(key, founder ? `${founder}'s guild` : guild.name);
   }
 };
 const guildDisplayName = (guild, names) => {
