@@ -1012,9 +1012,13 @@ function renderGuilds(data) {
       // The publisher emits `name` ("Base 1"); `label` was never in the feed,
       // so every base on the guild page read as a bare "Base".
       baseName.textContent = base.label || base.name || "Base";
+      // Nearest named landmark, when the publisher could place the base close
+      // enough to one. Never a coordinate -- just the place name.
+      const landmark = document.createElement("small");
+      if (base.landmark) landmark.textContent = `near ${base.landmark}`;
       const count = document.createElement("span");
       count.textContent = `${finite(base.worker_count)} working Pals`;
-      summary.append(baseIcon, baseName, count);
+      summary.append(baseIcon, baseName, landmark, count);
       const roster = document.createElement("div");
       roster.className = "worker-roster";
       for (const worker of Array.isArray(base.workers) ? base.workers : []) {
