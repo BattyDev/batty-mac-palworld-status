@@ -117,7 +117,13 @@ const playerSecondaryLabel = (name, guild, gamertag) => {
   // present; otherwise fall back to whatever gamertag the status feed
   // resolved automatically for this player (see xbox_gamertag in status.json).
   const resolvedGamertag = identity?.profile || gamertag;
-  return [guild || "No guild observed", resolvedGamertag ? `Xbox · ${resolvedGamertag}` : null]
+  // A guild can carry the same name as one of its members (the "Ukina" guild
+  // has a player called Ukina), which stacked the identical word under the
+  // card heading and read as a duplicated player.
+  const guildLabel = guild && playerNameKey(guild) === playerNameKey(name)
+    ? `${guild} (guild)`
+    : guild;
+  return [guildLabel || "No guild observed", resolvedGamertag ? `Xbox · ${resolvedGamertag}` : null]
     .filter(Boolean)
     .join(" · ");
 };
@@ -364,8 +370,11 @@ function createElementIcons(values, compact = false) {
 function showcaseParty(data, playerName, fallback = []) {
   const players = data?.pal_showcase?.players;
   if (!Array.isArray(players)) return fallback;
-  const lookup = String(playerName || "").toLocaleLowerCase();
-  const player = players.find(item => String(item?.name || "").toLocaleLowerCase() === lookup);
+  // Match through the identity table so a showcase record filed under a
+  // gamertag still lands on the character's card instead of dropping to the
+  // proximity sighting fallback.
+  const lookup = canonicalPlayerKey(playerName);
+  const player = players.find(item => canonicalPlayerKey(item?.name) === lookup);
   return Array.isArray(player?.party) && player.party.length ? player.party : fallback;
 }
 
