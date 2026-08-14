@@ -35,6 +35,14 @@ const playerIdentities = [
     character: "Owlz",
     profile: "OwlzBandit",
     aliases: ["Owlz", "OwlzBandit"]
+  },
+  {
+    // Ukina is a former character name, NOT an Xbox profile, so it stays out
+    // of `profile` -- that field renders as "Xbox · <name>". The world save
+    // holds no Ukina character and no Ukina player file, and the guild she
+    // founded kept the old name, which is why she read as a second person.
+    character: "Cydaea",
+    aliases: ["Cydaea", "Ukina"]
   }
 ];
 
@@ -111,13 +119,29 @@ const canonicalPlayerKey = value => {
   const identity = playerIdentity(value);
   return playerNameKey(identity?.character || value);
 };
+// One person can hold two names in the feed (a renamed character, or a
+// gamertag the API reports separately), so collapse the roster by identity
+// before anything counts, names or renders it. Where both records exist the
+// one actually called by the canonical name wins, then whichever is online.
+const guildMembers = guild => {
+  const kept = new Map();
+  for (const member of Array.isArray(guild?.members) ? guild.members : []) {
+    const key = canonicalPlayerKey(member?.name);
+    if (!key) continue;
+    const existing = kept.get(key);
+    if (!existing) { kept.set(key, member); continue; }
+    const isCanonical = record => playerNameKey(record?.name) === key;
+    if ((isCanonical(member) && !isCanonical(existing))
+      || (member?.online && !existing?.online && !isCanonical(existing))) {
+      kept.set(key, member);
+    }
+  }
+  return [...kept.values()];
+};
+const guildMemberNames = guild => guildMembers(guild).map(member => member?.name);
 // Palworld names a new guild after whoever founded it, so a guild whose name
 // matches one of its own members is the game's default rather than a chosen
-// one. Left bare it reads as a second person -- the "Ukina" guild put the word
-// next to its member Ukina on both the player cards and the guild page.
-// Rendering it possessively keeps one name from looking like two people.
-const guildMemberNames = guild =>
-  (Array.isArray(guild?.members) ? guild.members : []).map(member => member?.name);
+// one. Left bare it reads as a second person, so it renders possessively.
 const namesCollide = (guild, names) => {
   const key = playerNameKey(guild);
   return Boolean(key) && (Array.isArray(names) ? names : [names])
@@ -134,6 +158,13 @@ const guildFounder = guild => {
   const members = guildMemberNames(guild).filter(Boolean);
   return members.length === 1 ? members[0] : null;
 };
+// A placeholder guild with nobody observed in it has neither a name worth
+// showing nor anyone to attribute it to, so it is left out until a member is
+// seen. It still exists server-side and returns on its own; this is display
+// only, and every count is taken from the same filtered list so nothing
+// disagrees with what is on screen.
+const visibleGuilds = data => (Array.isArray(data?.guilds) ? data.guilds : [])
+  .filter(guild => !(placeholderGuildName(guild?.name) && !guildMembers(guild).length));
 // Resolved once per snapshot from the full roster, so the same guild reads
 // identically on a player card, the guild page and the achievement list --
 // a player card on its own only knows whether the guild matches that one
@@ -141,7 +172,7 @@ const guildFounder = guild => {
 let guildLabels = new Map();
 const rememberGuildLabels = data => {
   guildLabels = new Map();
-  for (const guild of Array.isArray(data?.guilds) ? data.guilds : []) {
+  for (const guild of visibleGuilds(data)) {
     const key = playerNameKey(guild?.name);
     if (!key || guildLabels.has(key)) continue;
     const founder = placeholderGuildName(guild.name)
@@ -811,7 +842,7 @@ function renderAchievements(data) {
   const host = $("#concept-achievements");
   if (!host) return;
   host.replaceChildren();
-  const guilds = Array.isArray(data.guilds) ? data.guilds : [];
+  const guilds = visibleGuilds(data);
 
   for (const guild of guilds) {
     for (const achievement of achievementsForGuild(guild)) {
@@ -908,7 +939,7 @@ function renderGuilds(data) {
   const host = $("#concept-guilds");
   if (!host) return;
   host.replaceChildren();
-  for (const guild of Array.isArray(data.guilds) ? data.guilds : []) {
+  for (const guild of visibleGuilds(data)) {
     const achievement = achievementFor(guild);
     const article = document.createElement("article");
     article.className = "guild-detail-card";
@@ -932,7 +963,7 @@ function renderGuilds(data) {
     for (const [value, label] of [
       [finite(guild.bases), "Bases"],
       [finite(guild.workers), "Working Pals"],
-      [Array.isArray(guild.members) ? guild.members.length : finite(guild.online_players?.length), "Members observed"]
+      [guildMembers(guild).length || finite(guild.online_players?.length), "Members observed"]
     ]) {
       const metric = document.createElement("span");
       metric.innerHTML = `<strong>${value}</strong><small>${label}</small>`;
@@ -962,7 +993,7 @@ function renderGuilds(data) {
     membersTitle.innerHTML = `<i class="bi bi-people-fill"></i> Members`;
     const memberList = document.createElement("div");
     memberList.className = "guild-member-list";
-    for (const member of Array.isArray(guild.members) ? guild.members : []) {
+    for (const member of guildMembers(guild)) {
       const memberCard = document.createElement("article");
       memberCard.className = `guild-member ${member.online ? "is-online" : ""}`;
       const memberHead = document.createElement("div");
@@ -1252,7 +1283,7 @@ async function loadConcept() {
     fill("fps", Math.round(finite(data.performance?.average_fps ?? data.fps)));
     fill("day", finite(data.world_day));
     fill("bases", finite(data.base_camps));
-    fill("guild-count", finite(Array.isArray(data.guilds) ? data.guilds.length : 0));
+    fill("guild-count", finite(visibleGuilds(data).length));
     fill("uptime", elapsed(data.uptime));
     fill("updated", new Date(data.updated_at).toLocaleString());
     for (const node of all("[data-status-dot]")) node.classList.toggle("is-online", online);
