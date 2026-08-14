@@ -1009,7 +1009,9 @@ function renderGuilds(data) {
       baseIcon.className = "bi bi-house-gear-fill";
       baseIcon.setAttribute("aria-hidden", "true");
       const baseName = document.createElement("strong");
-      baseName.textContent = base.label || "Base";
+      // The publisher emits `name` ("Base 1"); `label` was never in the feed,
+      // so every base on the guild page read as a bare "Base".
+      baseName.textContent = base.label || base.name || "Base";
       const count = document.createElement("span");
       count.textContent = `${finite(base.worker_count)} working Pals`;
       summary.append(baseIcon, baseName, count);
