@@ -111,19 +111,45 @@ const canonicalPlayerKey = value => {
   const identity = playerIdentity(value);
   return playerNameKey(identity?.character || value);
 };
+// Palworld names a new guild after whoever founded it, so a guild whose name
+// matches one of its own members is the game's default rather than a chosen
+// one. Left bare it reads as a second person -- the "Ukina" guild put the word
+// next to its member Ukina on both the player cards and the guild page.
+// Rendering it possessively keeps one name from looking like two people.
+const guildMemberNames = guild =>
+  (Array.isArray(guild?.members) ? guild.members : []).map(member => member?.name);
+const namesCollide = (guild, names) => {
+  const key = playerNameKey(guild);
+  return Boolean(key) && (Array.isArray(names) ? names : [names])
+    .some(name => playerNameKey(name) === key);
+};
+// Resolved once per snapshot from the full roster, so the same guild reads
+// identically on a player card, the guild page and the achievement list --
+// a player card on its own only knows whether the guild matches that one
+// player, which would label the same guild two different ways.
+let guildLabels = new Map();
+const rememberGuildLabels = data => {
+  guildLabels = new Map();
+  for (const guild of Array.isArray(data?.guilds) ? data.guilds : []) {
+    const key = playerNameKey(guild?.name);
+    if (!key || guildLabels.has(key)) continue;
+    const collides = namesCollide(guild.name, guildMemberNames(guild));
+    guildLabels.set(key, collides ? `${guild.name}'s guild` : guild.name);
+  }
+};
+const guildDisplayName = (guild, names) => {
+  const key = playerNameKey(guild);
+  if (!key) return guild;
+  if (guildLabels.has(key)) return guildLabels.get(key);
+  return namesCollide(guild, names) ? `${guild}'s guild` : guild;
+};
 const playerSecondaryLabel = (name, guild, gamertag) => {
   const identity = playerIdentity(name);
   // The hardcoded identity list (manually confirmed aliases) wins when
   // present; otherwise fall back to whatever gamertag the status feed
   // resolved automatically for this player (see xbox_gamertag in status.json).
   const resolvedGamertag = identity?.profile || gamertag;
-  // A guild can carry the same name as one of its members (the "Ukina" guild
-  // has a player called Ukina), which stacked the identical word under the
-  // card heading and read as a duplicated player.
-  const guildLabel = guild && playerNameKey(guild) === playerNameKey(name)
-    ? `${guild} (guild)`
-    : guild;
-  return [guildLabel || "No guild observed", resolvedGamertag ? `Xbox · ${resolvedGamertag}` : null]
+  return [guildDisplayName(guild, name) || "No guild observed", resolvedGamertag ? `Xbox · ${resolvedGamertag}` : null]
     .filter(Boolean)
     .join(" · ");
 };
@@ -782,7 +808,7 @@ function renderAchievements(data) {
       icon.className = `bi ${achievement.icon}`;
       const copy = document.createElement("div");
       const guildName = document.createElement("small");
-      guildName.textContent = guild.name;
+      guildName.textContent = guildDisplayName(guild.name, guildMemberNames(guild));
       const title = document.createElement("h3");
       title.textContent = achievement.title;
       const detail = document.createElement("p");
@@ -856,7 +882,7 @@ function renderOverkill(data, online) {
     addDataRow(
       playerHost,
       player.name,
-      `Lv ${displayData(player.level)} · ${player.guild || "No guild"} · ${tidy(player.ping)} ms · ${health} · ${companions} party sighting${companions === 1 ? "" : "s"}`
+      `Lv ${displayData(player.level)} · ${guildDisplayName(player.guild, player.name) || "No guild"} · ${tidy(player.ping)} ms · ${health} · ${companions} party sighting${companions === 1 ? "" : "s"}`
     );
   }
   if (!playerHost.children.length) addDataRow(playerHost, "Players", "Nobody online");
@@ -883,7 +909,7 @@ function renderGuilds(data) {
     const eyebrow = document.createElement("small");
     eyebrow.textContent = "Guild profile";
     const name = document.createElement("h3");
-    name.textContent = guild.name;
+    name.textContent = guildDisplayName(guild.name, guildMemberNames(guild));
     const identityNote = document.createElement("p");
     identityNote.textContent = achievement.title;
     identityCopy.append(eyebrow, name, identityNote);
@@ -1211,6 +1237,7 @@ async function loadConcept() {
     fill("uptime", elapsed(data.uptime));
     fill("updated", new Date(data.updated_at).toLocaleString());
     for (const node of all("[data-status-dot]")) node.classList.toggle("is-online", online);
+    rememberGuildLabels(data);
     renderHighlights(data);
     renderOnline(data);
     renderRecent(data);
